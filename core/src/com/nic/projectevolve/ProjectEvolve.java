@@ -9,7 +9,7 @@ public class ProjectEvolve extends Game {
 	public static final int V_HEIGHT = 400;
 	public static final float PPM = 100;
 
-	public static final int NUMMODULES = 2;
+	public static final int NUMMODULES = 19;
 
 	public static final int[][] MODULELOCATIONS = {{0,0},{0,32},{28,16},{28,-16},{0,-32},{-28,-16},{-28,16},{0,64},{28,48},{56,32},{56,0},{56,-32},{28,-48},{0,-64},{-28,-48},{-56,-32},{-56,0},{-56,32},{-28,48}};
 
@@ -23,6 +23,8 @@ public class ProjectEvolve extends Game {
 	public static final short PLAYER_BIT = 2;
 	public static final short ENEMY_BIT = 4;
 	public static final short ATTACKING_BIT = 8;
+
+	public static final String[] MODULETEXTURETNAMES = {"normalmodule.png","attackingmodule.png"};
 	
 	@Override
 	public void create () {

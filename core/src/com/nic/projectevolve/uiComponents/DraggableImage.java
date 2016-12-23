@@ -13,19 +13,23 @@ import com.nic.projectevolve.ProjectEvolve;
  * create their own layout of modules
  */
 public class DraggableImage {
+    private Texture texture;
     private Sprite sprite;
     private Sprite transientSprite;
     private Vector2 position;
     private Vector2 transientPosition;
     private boolean pickedUp;
 
+    private int socket;
+
     private short moduleType;
     private CreatorMatrix matrix;
 
-    public DraggableImage(String textureName, Vector2 position, CreatorMatrix matrix) {
+    public DraggableImage(int type, Vector2 position, CreatorMatrix matrix) {
         this.matrix = matrix;
+        moduleType = (short) type;
 
-        Texture texture = new Texture(textureName);
+        texture = new Texture(ProjectEvolve.MODULETEXTURETNAMES[type]);
         sprite = new Sprite(texture);
         sprite.setBounds(0, 0, 50 / ProjectEvolve.PPM, 50 / ProjectEvolve.PPM);
         sprite.setPosition(position.x, position.y);
@@ -41,8 +45,8 @@ public class DraggableImage {
         pickedUp = false;
     }
 
-    public void pickUp(Vector2 touchPosition) {
-        if (matrix.pickUp(touchPosition) || touchPosition.x > position.x &&
+    public void tryPickUp(Vector2 touchPosition) {
+        if (touchPosition.x > position.x &&
                 touchPosition.x < position.x + 48 / ProjectEvolve.PPM &&
                 touchPosition.y > position.y &&
                 touchPosition.y < position.y + 48 / ProjectEvolve.PPM) {
@@ -60,26 +64,40 @@ public class DraggableImage {
         }
     }
 
-    public void place(Vector2 placedPosition) {
-        // TODO only allow placing if picked up and in a valid location, otherwise set transient position to position
-        if (pickedUp) {
-            Vector2 testPostition = matrix.testDrop(placedPosition);
-            if (testPostition.x >= 0) {
-                position = testPostition;
-                sprite.setPosition(position.x, position.y);
-                pickedUp = false;
-            } else {
-                transientPosition = position;
-                pickedUp = false;
-            }
-        }
-    }
-
     public void render(SpriteBatch batch) {
         sprite.draw(batch);
         if (pickedUp) {
             transientSprite.draw(batch);
         }
+    }
+
+    public void place(int index, int socket) {
+        // Index is the index of the Module being placed, socket is the socket it is being placed into
+        this.socket = socket;
+        matrix.actuallyDrop(index, socket, moduleType);
+
+        position = matrix.getSocketLocation(socket);
+        transientPosition = position;
+        sprite.setPosition(position.x, position.y);
+
+        pickedUp = false;
+    }
+
+    public boolean isPickedUp() {
+        return pickedUp;
+    }
+
+    public void setPickedUp(boolean condition) {
+        pickedUp = condition;
+    }
+
+    public int getSocket() {
+        return socket;
+    }
+
+    public void dispose() {
+        matrix.removeModule(socket);
+        texture.dispose();
     }
 
 }

@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.nic.projectevolve.ProjectEvolve;
 import com.nic.projectevolve.uiComponents.CreatorMatrix;
 import com.nic.projectevolve.uiComponents.DraggableImage;
+import com.nic.projectevolve.uiComponents.ModuleDeleter;
 import com.nic.projectevolve.uiComponents.ModuleSpawner;
 
 /**
@@ -37,19 +38,23 @@ public class CreatorScreen implements Screen{
     private OrthographicCamera gameCam;
     private FitViewport gamePort;
 
-    private TextButton menuButton;
-    private DraggableImage[] dragImages;
+    private DraggableImage[] modules;
+    private int numModules;
     private CreatorMatrix creatorMatrix;
-    private ModuleSpawner blueSpawner;
+    private ModuleDeleter moduleDeleter;
 
-    private DraggableImage dragImage1;
-
-    private int blueSpawners;
+    private ModuleSpawner[] spawners;
+    private int numSpawners;
 
     public CreatorScreen(ProjectEvolve game) {
         //Gdx.input.setInputProcessor(stage);
-        dragImages = new DraggableImage[19];
-        blueSpawners = 0;
+        modules = new DraggableImage[19];
+        numModules = 0;
+
+        numSpawners = 2;
+        spawners = new ModuleSpawner[numSpawners];
+
+        // Set up UI (buttons, and other clickables)
         createButtons();
 
         this.game = game;
@@ -60,9 +65,6 @@ public class CreatorScreen implements Screen{
         gamePort = new FitViewport(ProjectEvolve.V_WIDTH / ProjectEvolve.PPM, ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM, gameCam);
 
         gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
-
-        // TODO Debug code
-        //dragImage1 = new DraggableImage("normalmodule.png", new Vector2(0, 0));
     }
 
     private void createButtons() {
@@ -89,7 +91,7 @@ public class CreatorScreen implements Screen{
         textButtonStyle.font = skin.getFont("default");
         skin.add("default", textButtonStyle);
 
-        menuButton = new TextButton("Back to Menu", skin);
+        TextButton menuButton = new TextButton("Back to Menu", skin);
         menuButton.setPosition(ProjectEvolve.V_WIDTH - menuButton.getWidth(), 0);
         stage.addActor(menuButton);
 
@@ -102,14 +104,20 @@ public class CreatorScreen implements Screen{
             }
         });
 
+        creatorMatrix = new CreatorMatrix("hexagongrid.png", new Vector2(ProjectEvolve.V_WIDTH / 2 / ProjectEvolve.PPM, ProjectEvolve.V_HEIGHT / 2 / ProjectEvolve.PPM));
 
-        creatorMatrix = new CreatorMatrix("hexagongrid.png", new Vector2(ProjectEvolve.V_WIDTH / 2 / ProjectEvolve.PPM, ProjectEvolve.V_HEIGHT / 2 / ProjectEvolve.PPM), "normalmodule.png");
-        //dragImage1 = new DraggableImage("normalmodule.png", new Vector2(0, 0), creatorMatrix);
-        blueSpawner = new ModuleSpawner("normalmodule.png", new Vector2(0, 0), creatorMatrix);
-    }
+        // Load module locations from gameState
+        for(int i = 0; i < ProjectEvolve.NUMMODULES; i++) {
+            if(ProjectEvolve.state.getModule(i) != -1) {
+                modules[numModules] = new DraggableImage(ProjectEvolve.state.getModule(i), creatorMatrix.getSocketLocation(i), creatorMatrix);
+                modules[numModules].place(numModules, i);
+                numModules++;
+            }
+        }
 
-    private void createPartsList() {
-
+        spawners[0] = new ModuleSpawner(0, new Vector2(0, 0));
+        spawners[1] = new ModuleSpawner(1, new Vector2(0, 50 / ProjectEvolve.PPM));
+        moduleDeleter = new ModuleDeleter("delete.png", new Vector2(0, 100 / ProjectEvolve.PPM));
     }
 
     @Override
@@ -117,66 +125,124 @@ public class CreatorScreen implements Screen{
 
     }
 
-    private void handleInput(float dt) {
-        //System.out.println("handling input");
-        if (Gdx.input.isTouched()) {
-            //System.out.println("left click detected");
-//            if(blueSpawner.TrySpawn(new Vector2(Gdx.input.getX() / ProjectEvolve.PPM, -Gdx.input.getY() / ProjectEvolve.PPM + ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM))) {
-//                // Create Blue Module
-//                System.out.println("Spawning module");
-//                dragImages[blueSpawners] = new DraggableImage("normalmodule.png", new Vector2(0, 0), creatorMatrix);
-//            }
-            blueSpawner.pickUp(new Vector2(Gdx.input.getX() / ProjectEvolve.PPM, -Gdx.input.getY() / ProjectEvolve.PPM + ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM));
-            blueSpawner.transientMove(new Vector2(Gdx.input.getX() / ProjectEvolve.PPM, -Gdx.input.getY() / ProjectEvolve.PPM + ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM));
-            int i;
-            for(i = 0; i < blueSpawners; i++) {
-                dragImages[i].pickUp(new Vector2(Gdx.input.getX() / ProjectEvolve.PPM, -Gdx.input.getY() / ProjectEvolve.PPM + ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM));
-                dragImages[i].transientMove(new Vector2(Gdx.input.getX() / ProjectEvolve.PPM, -Gdx.input.getY() / ProjectEvolve.PPM + ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM));
-            }
-            //dragImage1.pickUp(new Vector2(Gdx.input.getX() / ProjectEvolve.PPM, -Gdx.input.getY() / ProjectEvolve.PPM + ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM));
-            //dragImage1.transientMove(new Vector2(Gdx.input.getX() / ProjectEvolve.PPM, -Gdx.input.getY() / ProjectEvolve.PPM + ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM));
-            //System.out.println(Gdx.input.getX());
-        } else {
-            //System.out.println("Unclicked");
-            //dragImage1.place(new Vector2(Gdx.input.getX() / ProjectEvolve.PPM, -Gdx.input.getY() / ProjectEvolve.PPM + ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM));
-            Vector2 blueSpawnLocation = blueSpawner.place(new Vector2(Gdx.input.getX() / ProjectEvolve.PPM, -Gdx.input.getY() / ProjectEvolve.PPM + ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM));
-            if(blueSpawnLocation.x > 0) {
-                System.out.println("Spawning new Module");
-                dragImages[blueSpawners] = new DraggableImage("normalmodule.png", blueSpawnLocation, creatorMatrix);
-                blueSpawners++;
+    private void handleInput() {
+        // Pre-calculate the touch location so it only needs to be calculated once
+        Vector2 touchLocation = new Vector2(Gdx.input.getX() / ProjectEvolve.PPM, -Gdx.input.getY() / ProjectEvolve.PPM + ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM);
+
+        // Handle if the screen was just touched (mostly pick up operations)
+        if(Gdx.input.justTouched()) {
+            // Check if any spawners need picked up
+            for(int i = 0; i < numSpawners; i++) {
+                spawners[i].tryPickUp(touchLocation);
             }
 
-            int i;
-            for(i = 0; i < blueSpawners; i++) {
-                dragImages[i].place(new Vector2(Gdx.input.getX() / ProjectEvolve.PPM, -Gdx.input.getY() / ProjectEvolve.PPM + ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM));
+            // Check if any modules need picked up
+            for(int i = 0; i < numModules; i++) {
+                if(modules[i].getSocket() != 0) {
+                    modules[i].tryPickUp(touchLocation);
+                }
+            }
+        }
+
+        // Handle if the screen is touched (not necessarily just touched) (mostly transient move operations)
+        if (Gdx.input.isTouched()) {
+            // Transient move any spawners (transient move checks if picked up)
+            for(int i = 0; i < numSpawners; i++) {
+                spawners[i].transientMove(touchLocation);
+            }
+
+            // Transient move any modules (transient move checks if picked up)
+            for(int i = 0; i < numModules; i++) {
+                modules[i].transientMove(touchLocation);
+            }
+        }
+
+        // Handle if there is no click (mostly place operations)
+        else {
+            // Test for spawners; is the spawner picked up?
+            for(int i = 0; i < numSpawners; i++) {
+                if (spawners[i].isPickedUp()) {
+                    // Has a valid location been picked? (on the matrix)
+                    int blueSpawnLocation = creatorMatrix.testDrop(touchLocation);
+                    if (blueSpawnLocation > -1) {
+                        // Valid location has been chosen
+                        // If there is already a module in the socket, then delete it
+                        if (creatorMatrix.getModuleIndex(blueSpawnLocation) != -1) {
+                            DeleteModule(creatorMatrix.getModuleIndex(blueSpawnLocation));
+                            creatorMatrix.removeModule(blueSpawnLocation);
+                        }
+                        // Test to see if an adjacent socket is occupied
+                        if (creatorMatrix.adjacentOccupied(blueSpawnLocation, -1)) {
+                            // Create a new module in the chosen socket
+                            modules[numModules] = new DraggableImage(spawners[i].getType(), creatorMatrix.getSocketLocation(blueSpawnLocation), creatorMatrix);
+                            modules[numModules].place(numModules, blueSpawnLocation);
+                            numModules++;
+                        }
+                    }
+                    spawners[i].setPickedUp(false);
+                }
+            }
+
+            // Test for each of the Modules being moved
+            for(int i = 0; i < numModules; i++) {
+                // Is the Module picked up?
+                if(modules[i].isPickedUp()) {
+                    // Has a valid location been picked? (on the matrix)
+                    int newSocket = creatorMatrix.testDrop(touchLocation);
+                    if(newSocket > -1 && newSocket != modules[i].getSocket()) {
+                        // Valid location has been chosen
+                        // If there is already a module in the socket, then delete it
+                        if(creatorMatrix.getModuleIndex(newSocket) != -1) {
+                            DeleteModule(creatorMatrix.getModuleIndex(newSocket));
+                            creatorMatrix.removeModule(newSocket);
+                        }
+                        // Test to see if an adjacent socket is occupied
+                        if(creatorMatrix.adjacentOccupied(newSocket, modules[i].getSocket())) {
+                            // Move the Module
+                            creatorMatrix.removeModule(modules[i].getSocket());
+                            modules[i].place(i, newSocket);
+                        }
+                    } else if(moduleDeleter.intersects(touchLocation)) {
+                        // Location of deleter has been chosen; delete the picked up module
+                        if(creatorMatrix.adjacentOccupied(-1, modules[i].getSocket())) {
+                            DeleteModule(i);
+                            creatorMatrix.removeModule(modules[i].getSocket());
+                        }
+                    }
+                    modules[i].setPickedUp(false);
+                }
             }
         }
     }
 
-    private void update(float dt) {
-        handleInput(dt);
-        //System.out.println(blueSpawner.pickedUp);
+    private void update() {
+        handleInput();
+
     }
 
     @Override
     public void render(float delta) {
-        update(delta);
+        update();
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        //game.batch.setProjectionMatrix(gameCam.combined);
         stage.act();
         stage.draw();
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
 
+        // Render module spawners
+        for(int i = 0; i < numSpawners; i++) {
+            spawners[i].render(game.batch);
+        }
 
+        // Render Module Deleter
+        moduleDeleter.render(game.batch);
 
-        blueSpawner.render(game.batch);
         // Render blue modules
         int i;
-        for(i = 0; i < blueSpawners; i++) {
-            dragImages[i].render(game.batch);
+        for(i = 0; i < numModules; i++) {
+            modules[i].render(game.batch);
         }
 
         //dragImage1.render(game.batch);
@@ -209,5 +275,18 @@ public class CreatorScreen implements Screen{
     public void dispose() {
         stage.dispose();
         skin.dispose();
+    }
+
+    // Handles everything needed to delete a module that is no longer needed
+    public void DeleteModule(int index) {
+        // Let DraggableImage dispose of resources it needs to
+        modules[index].dispose();
+
+        // Remove reference to deleted module in the module array
+        numModules--;
+        int i;
+        for(i = index; i < numModules; i++) {
+            modules[i] = modules[i + 1];
+        }
     }
 }

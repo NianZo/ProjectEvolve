@@ -54,10 +54,10 @@ public class Player {
         totalPerpendicularForce = new Vector2(0, 0);
         modules = new Module[ProjectEvolve.NUMMODULES];
         cg = new Vector2(0, 16/ProjectEvolve.PPM);
-        int j;
-        for (j = 0; j < ProjectEvolve.NUMMODULES; j++) {
-            ProjectEvolve.state.setModule(j, (short) 1);
-        }
+//        int j;
+//        for (j = 0; j < ProjectEvolve.NUMMODULES; j++) {
+//            ProjectEvolve.state.setModule(j, (short) 1);
+//        }
         //ProjectEvolve.state.setModule(2, (short) 1);
         position = new Vector2(128 / ProjectEvolve.PPM, 128 / ProjectEvolve.PPM);
         velocity = new Vector2(0, 0);
@@ -72,8 +72,9 @@ public class Player {
         // Create Modules for the player
         int i;
         for(i = 0; i < ProjectEvolve.NUMMODULES; i++) {
-            if(ProjectEvolve.state.getModule(i) != 0) {
-                modules[i] = new Module(i, normalModule, position.x + ProjectEvolve.MODULELOCATIONS[i][0], position.y + ProjectEvolve.MODULELOCATIONS[i][1], this, ProjectEvolve.PLAYER_BIT);
+            if(ProjectEvolve.state.getModule(i) != -1) {
+                // TODO will this cause memory issues? Can't dispose textures if I don't have a reference to it
+                modules[i] = new Module(i, new Texture(ProjectEvolve.MODULETEXTURETNAMES[ProjectEvolve.state.getModule(i)]), position.x + ProjectEvolve.MODULELOCATIONS[i][0], position.y + ProjectEvolve.MODULELOCATIONS[i][1], this, ProjectEvolve.PLAYER_BIT);
                 modules[i].setCollisionInformation(ProjectEvolve.ENEMY_BIT | ProjectEvolve.EDGE_BIT, ProjectEvolve.PLAYER_BIT);
             }
             //mod1 = new Module(normalModule, position.x, position.y, this, ProjectEvolve.PLAYER_BIT);

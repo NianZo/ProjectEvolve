@@ -4,7 +4,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Shape;
 import com.nic.projectevolve.ProjectEvolve;
 import com.nic.projectevolve.shapes.Circle;
 
@@ -15,21 +14,43 @@ import com.nic.projectevolve.shapes.Circle;
  * of the game's State class which will hold the creature blueprint.
  */
 public class CreatorMatrix {
-    private ProjectEvolve game;
+    private static final int[][] ADJACENTSOCKETS =
+            {{1,2,3,4,5,6}
+            ,{7,8,2,0,6,18}
+            ,{8,9,10,3,0,1}
+            ,{2,10,11,12,4,0}
+            ,{0,3,12,13,14,5}
+            ,{6,0,4,14,15,16}
+            ,{18,1,0,5,16,17}
+            ,{8,1,18,-1,-1,-1}
+            ,{9,2,1,7,-1,-1}
+            ,{10,2,8,-1,-1,-1}
+            ,{11,3,2,9,-1,-1}
+            ,{12,3,10,-1,-1,-1}
+            ,{13,4,3,11,-1,-1}
+            ,{14,4,12,-1,-1,-1}
+            ,{15,5,4,13,-1,-1}
+            ,{16,5,14,-1,-1,-1}
+            ,{17,6,5,15,-1,-1}
+            ,{18,6,16,-1,-1,-1}
+            ,{7,1,6,17,-1,-1}};
+    private static final int[][] SOCKETLOCATIONS = {{0,-1},{0,49},{43,25},{43,-25},{1,-50},{-41,-26},{-41,24},{0,100},{42,75},{84,50},{85,0},{85,-50},{43,-75},{2,-100},{-41,-76},{-84,-50},{-83,-1},{-84,48},{-42,73}};
+    private static final float SOCKETRADIUS = 50f / 2 / ProjectEvolve.PPM;
 
     private Sprite sprite;
 
     private Circle[] sockets;
-    private int numSockets = 19;
+    private int numSockets = ProjectEvolve.NUMMODULES;
     private short[] occupied;
 
-    // TODO Test code
-    private Sprite testSprite;
-
-    public CreatorMatrix(String textureName, Vector2 position, String testTextureName) {
-        this.game = game;
+    public CreatorMatrix(String textureName, Vector2 position) {
         sockets = new Circle[numSockets];
         occupied = new short[numSockets];
+
+        // Initialize to all sockets being unoccupied
+        for(int i = 0; i < numSockets; i++) {
+            occupied[i] = -1;
+        }
 
         // Handles creation of hexagon matrix sprite
         Texture texture = new Texture(textureName);
@@ -38,80 +59,107 @@ public class CreatorMatrix {
         sprite.setPosition(position.x - sprite.getWidth() / 2, position.y - sprite.getHeight() / 2);
 
         // Handles creation and positioning of sockets to drop modules into
-        // TODO THIS HAS HARD-CODED POSITION VALUES FOR THE TEST HEXAGON MATRIX IMAGE, NEEDS TO BE CHANGED
-        sockets[0] = new Circle(new Vector2(position.x, position.y - 1 / ProjectEvolve.PPM), 50f / 2 / ProjectEvolve.PPM);
-        sockets[1] = new Circle(new Vector2(position.x, position.y + 49 / ProjectEvolve.PPM), 50f / 2 / ProjectEvolve.PPM);
-        sockets[2] = new Circle(new Vector2(position.x + 43 / ProjectEvolve.PPM, position.y + 25 / ProjectEvolve.PPM), 50f / 2 / ProjectEvolve.PPM);
-        sockets[3] = new Circle(new Vector2(position.x + 43 / ProjectEvolve.PPM, position.y - 25 / ProjectEvolve.PPM), 50f / 2 / ProjectEvolve.PPM);
-        sockets[4] = new Circle(new Vector2(position.x + 1 / ProjectEvolve.PPM, position.y - 50 / ProjectEvolve.PPM), 50f / 2 / ProjectEvolve.PPM);
-        sockets[5] = new Circle(new Vector2(position.x - 41 / ProjectEvolve.PPM, position.y - 26 / ProjectEvolve.PPM), 50f / 2 / ProjectEvolve.PPM);
-        sockets[6] = new Circle(new Vector2(position.x - 41 / ProjectEvolve.PPM, position.y + 24 / ProjectEvolve.PPM), 50f / 2 / ProjectEvolve.PPM);
-        sockets[7] = new Circle(new Vector2(position.x, position.y + 100 / ProjectEvolve.PPM), 50f / 2 / ProjectEvolve.PPM);
-        sockets[8] = new Circle(new Vector2(position.x + 42 / ProjectEvolve.PPM, position.y + 75 / ProjectEvolve.PPM), 50f / 2 / ProjectEvolve.PPM);
-        sockets[9] = new Circle(new Vector2(position.x + 84 / ProjectEvolve.PPM, position.y + 50 / ProjectEvolve.PPM), 50f / 2 / ProjectEvolve.PPM);
-        sockets[10] = new Circle(new Vector2(position.x + 85 / ProjectEvolve.PPM, position.y + 0 / ProjectEvolve.PPM), 50f / 2 / ProjectEvolve.PPM);
-        sockets[11] = new Circle(new Vector2(position.x + 85 / ProjectEvolve.PPM, position.y - 50 / ProjectEvolve.PPM), 50f / 2 / ProjectEvolve.PPM);
-        sockets[12] = new Circle(new Vector2(position.x + 43 / ProjectEvolve.PPM, position.y - 75 / ProjectEvolve.PPM), 50f / 2 / ProjectEvolve.PPM);
-        sockets[13] = new Circle(new Vector2(position.x + 2 / ProjectEvolve.PPM, position.y - 100 / ProjectEvolve.PPM), 50f / 2 / ProjectEvolve.PPM);
-        sockets[14] = new Circle(new Vector2(position.x - 41 / ProjectEvolve.PPM, position.y - 76 / ProjectEvolve.PPM), 50f / 2 / ProjectEvolve.PPM);
-        sockets[15] = new Circle(new Vector2(position.x - 84 / ProjectEvolve.PPM, position.y - 50 / ProjectEvolve.PPM), 50f / 2 / ProjectEvolve.PPM);
-        sockets[16] = new Circle(new Vector2(position.x - 83 / ProjectEvolve.PPM, position.y - 1 / ProjectEvolve.PPM), 50f / 2 / ProjectEvolve.PPM);
-        sockets[17] = new Circle(new Vector2(position.x - 84 / ProjectEvolve.PPM, position.y + 48 / ProjectEvolve.PPM), 50f / 2 / ProjectEvolve.PPM);
-        sockets[18] = new Circle(new Vector2(position.x - 42 / ProjectEvolve.PPM, position.y + 73 / ProjectEvolve.PPM), 50f / 2 / ProjectEvolve.PPM);
-
-        // TODO TEST CODE BLOCK ///////////////////
-//        int i = numSockets - 1;
-//        Texture testTexture = new Texture(testTextureName);
-//        testSprite = new Sprite(testTexture);
-//        testSprite.setBounds(0, 0, 48 / ProjectEvolve.PPM, 48 / ProjectEvolve.PPM);
-//        testSprite.setPosition(sockets[i].getPosition().x - sockets[i].getRadius(), sockets[i].getPosition().y - sockets[i].getRadius());
-        // TODO END TEST CODE BLOCK ///////////////
+        for(int i = 0; i < numSockets; i++) {
+            sockets[i] = new Circle(new Vector2(position.x + SOCKETLOCATIONS[i][0] / ProjectEvolve.PPM, position.y + SOCKETLOCATIONS[i][1] / ProjectEvolve.PPM), SOCKETRADIUS);
+        }
     }
 
     public void render(SpriteBatch batch) {
         sprite.draw(batch);
-        //testSprite.draw(batch);
     }
 
-    public Vector2 testDrop(Vector2 position) {
+    // This will return the socket number that corresponds to the input position
+    public int testDrop(Vector2 position) {
+        // Iterate through all sockets
         int i = 0;
         while(i < numSockets) {
+            // Test if position is in the socket
             if (intersects(position, sockets[i])) {
-                // TODO grab module type and prepare to write it to the game's State.
-                occupied[i] = 1;
-                ProjectEvolve.state.setModule(i, (short) 1);
-                return new Vector2(sockets[i].getPosition().x - sockets[i].getRadius(), sockets[i].getPosition().y - sockets[i].getRadius());
-
+                // Return the collided socket
+                return i;
             }
             i++;
         }
-        // AN INVALID LOCATION SO DraggableImage CAN TEST AGAINST IT
-        return new Vector2(-1, -1);
-    }
-
-    public boolean pickUp(Vector2 position) {
-        int i = 0;
-        while(i < numSockets) {
-            if (intersects(position, sockets[i])) {
-                if(occupied[i] > 0) {
-                    occupied[i] = 0;
-                    ProjectEvolve.state.setModule(i, (short) 0);
-                    return true;
-                }
-            }
-            i++;
-        }
-        return false;
+        // Return an invalid socket to test against
+        return -1;
     }
 
     private boolean intersects(Vector2 cursor, Circle socket) {
         Vector2 displacement = new Vector2(socket.getPosition().x - cursor.x, socket.getPosition().y - cursor.y);
-        float magDisplacement = displacement.len();
+        return displacement.len() <= socket.getRadius();
+    }
 
-        if (magDisplacement <= socket.getRadius()) {
-            return true;
-        } else {
-            return false;
+    public int getModuleIndex(int socket) {
+        return occupied[socket];
+    }
+
+    public Vector2 getSocketLocation(int socket) {
+        if(socket == -1) {
+            return new Vector2(-1, -1);
         }
+        return new Vector2(sockets[socket].getPosition().x - sockets[socket].getRadius(), sockets[socket].getPosition().y - sockets[socket].getRadius());
+    }
+
+    public void actuallyDrop(int index, int socket, int type) {
+        occupied[socket] = (short) index;
+
+        ProjectEvolve.state.setModule(socket, (short) type);
+    }
+
+    public void removeModule(int index) {
+        occupied[index] = -1;
+        ProjectEvolve.state.setModule(index, (short) -1);
+    }
+
+    // Socket is the socket we want something adjacent to, starting socket is where the module started
+    public boolean adjacentOccupied(int newSocket, int oldSocket) {
+        // Arrays for testing against
+        // connectedList holds the list of modules found to be touching module zero in some way
+        int connectedList[] = {0,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+        int numConnected = 1;
+        // socketList holds all sockets to test (all sockets that need to be touching module zero
+        int socketList[] = {-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1};
+        int numOccupiedSockets = 0;
+        for(int i = 0; i < 19; i++) {
+            // Populate socketList with each occupied socket, excluding oldSocket, and including newSocket
+            if(occupied[i] != -1 && i != oldSocket || i == newSocket) {
+                socketList[numOccupiedSockets] = i;
+                numOccupiedSockets++;
+            }
+        }
+
+        boolean connected = false;
+        // Iterate through all filled sockets except zero socket (zero socket already touches zero socket)
+        for(int i = 1; i < numOccupiedSockets; i++) {
+            // For each filled socket, iterate through connectedList
+            for(int j = 0; j < numConnected; j++) {
+                // See if the filled socket is adjacent to the connected socket
+                if (!connected && isAdjacentTo(socketList[i], connectedList[j])) {
+                    connectedList[numConnected] = socketList[i];
+                    numConnected++;
+                    connected = true;
+                }
+            }
+            // If the filled socket was not connected to any sockets in the connectedList, then it is not connected to the zero socket and the test fails
+            if(!connected) {
+                return false;
+            }
+            // Reset connected flag for next filled socket
+            connected = false;
+        }
+        // If no filled sockets failed then test is successful, return true;
+        return true;
+    }
+
+    // Helper function for adjacentOccupied; tests to see if a single socket is adjacent to a single other socket
+    private boolean isAdjacentTo(int socket, int socketToTest) {
+        boolean adjacent = false;
+
+        for(int i = 0; i < 6; i++) {
+            if(!adjacent) {
+                adjacent = ADJACENTSOCKETS[socket][i] == socketToTest;
+            }
+        }
+        return adjacent;
     }
 }

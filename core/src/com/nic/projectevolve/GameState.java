@@ -4,7 +4,7 @@ package com.nic.projectevolve;
  * Created by nic on 11/12/16.
  *
  * This class handles all game state that needs to be shared between distant objects / saved for
- * proper gameplay.
+ * proper game play.
  */
 public class GameState {
     private short[] moduleLocations;
@@ -15,8 +15,9 @@ public class GameState {
     public GameState() {
         moduleLocations = new short[numModules];
         int i;
-        for(i = 0; i < numModules; i++) {
-            moduleLocations[i] = 0;
+        moduleLocations[0] = 0;
+        for(i = 1; i < numModules; i++) {
+            moduleLocations[i] = -1;
         }
     }
 
