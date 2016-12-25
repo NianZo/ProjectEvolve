@@ -9,6 +9,9 @@ public class ProjectEvolve extends Game {
 	public static final int V_HEIGHT = 400;
 	public static final float PPM = 100;
 
+	public static final int MAPTILEWIDTH = 50;
+	public static final int MAPTILEHEIGHT = 50;
+
 	public static final int NUMMODULES = 19;
 
 	public static final int[][] MODULELOCATIONS = {{0,0},{0,32},{28,16},{28,-16},{0,-32},{-28,-16},{-28,16},{0,64},{28,48},{56,32},{56,0},{56,-32},{28,-48},{0,-64},{-28,-48},{-56,-32},{-56,0},{-56,32},{-28,48}};

@@ -8,7 +8,7 @@ import com.nic.projectevolve.ProjectEvolve;
 public class ContactListener {
     public static void contact(Body a, Body b) {
         if (a.getCollisionIdentity() != ProjectEvolve.ENEMY_BIT) {
-            a.getModule().hit(b.getModule());
+            //a.getModule().hit(b.getModule());
         }
     }
 }

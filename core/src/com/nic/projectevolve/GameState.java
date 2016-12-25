@@ -9,14 +9,11 @@ package com.nic.projectevolve;
 public class GameState {
     private short[] moduleLocations;
 
-    //TODO numModules needs to be replaced by ProjectEvolve.NUMMODULES
-    private static final int numModules = 19;
-
     public GameState() {
-        moduleLocations = new short[numModules];
+        moduleLocations = new short[ProjectEvolve.NUMMODULES];
         int i;
         moduleLocations[0] = 0;
-        for(i = 1; i < numModules; i++) {
+        for(i = 1; i < ProjectEvolve.NUMMODULES; i++) {
             moduleLocations[i] = -1;
         }
     }
