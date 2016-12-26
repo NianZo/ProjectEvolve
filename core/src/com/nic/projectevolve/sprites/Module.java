@@ -113,7 +113,7 @@ public class Module extends Sprite {
     // TODO this will replace definePlayer
     public void setBody(com.nic.projectevolve.physics.Body body) {
         newBody = body;
-        System.out.println(newBody.getPosition().x);
+        //System.out.println(newBody.getPosition().x);
     }
 
     // TODO currently player handles this because a work around is needed for bouncing off

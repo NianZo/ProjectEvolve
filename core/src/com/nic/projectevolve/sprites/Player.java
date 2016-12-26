@@ -41,10 +41,10 @@ public class Player {
         int i;
         for(i = 0; i < ProjectEvolve.NUMMODULES; i++) {
             if(ProjectEvolve.state.getModule(i) != -1) {
-                System.out.println(i);
+                //System.out.println(i);
                 // TODO will this cause memory issues? Can't dispose textures if I don't have a reference to it
                 modules[numModules] = new Module(numModules, new Texture(ProjectEvolve.MODULETEXTURETNAMES[ProjectEvolve.state.getModule(i)]), position.x + ProjectEvolve.MODULELOCATIONS[i][0] / ProjectEvolve.PPM, position.y + ProjectEvolve.MODULELOCATIONS[i][1] / ProjectEvolve.PPM, ProjectEvolve.PLAYER_BIT);
-                System.out.println(modules[numModules].getPosition().x);
+                //System.out.println(modules[numModules].getPosition().x);
                 Body newBody = new Body(bodyGroup, modules[numModules].getPosition(), 16 / ProjectEvolve.PPM, 16 / ProjectEvolve.PPM, true, i);
                 newBody.setCollisionIdentity(ProjectEvolve.PLAYER_BIT);
                 newBody.setCollisionMask((short) (ProjectEvolve.ENEMY_BIT | ProjectEvolve.EDGE_BIT));
