@@ -32,15 +32,16 @@ public class BodyGroup {
 
     private float lastDt;
 
+    private float xOffset;
+    private float yOffset;
+
+//    private Vector2 lastPosition;
+//    private float lastRotation;
+
     public BodyGroup(Vector2 position) {
         // Initialize the ArrayList of bodies so it can be added to later
         bodies = new ArrayList<Body>();
         numBodies = 0;
-
-        // TODO I believe these also need to be dynamic based on modules
-        // Initialize physical characteristics
-        mass = 1;
-        momentOfInertia = 1;
 
         // Initialize movement characteristics of the body group to zero
         rotation = 0;
@@ -51,12 +52,14 @@ public class BodyGroup {
         totalLongitudinalForce = new Vector2(0, 0);
         totalTorque = 0;
 
-        // TODO calculate cg based on bodies
         cg = new Vector2(0, 0);
         relativeCG = new Vector2(0, 0);
         this.position = position;
 
         // TODO these probably should be specified from game code and passed in instead of being hard coded
+        // Initialize physical characteristics
+        mass = 1; // This should be calculated as bodies are added
+        momentOfInertia = 1; // This should be calculated as bodies are added
         maxVelocity = 2;
         maxAngularVelocity = 90;
     }
@@ -64,6 +67,8 @@ public class BodyGroup {
     public void addBody(Body body) {
         bodies.add(body);
         numBodies++;
+        // Calculate new cg as average of all modules' locations relative to position
+        // TODO pass in locations instead of getting them from game code directly
         Vector2 cgRunningTotal = new Vector2(0, 0);
         for(int i = 0; i < numBodies; i++) {
             cgRunningTotal.x += ProjectEvolve.MODULELOCATIONS[bodies.get(i).getIndex()][0] / ProjectEvolve.PPM;
@@ -75,34 +80,22 @@ public class BodyGroup {
     }
 
     public void update(float dt) {
+//        lastPosition = position;
+//        lastRotation = rotation;
+        // Store dt in case need to unUpdate when applying forces
         lastDt = dt;
-        float xOffset;
-        float yOffset;
 
         // Update velocities based on forces from last collisions / inputs
         velocity = new Vector2(totalLongitudinalForce.x / 60f / mass + velocity.x, totalLongitudinalForce.y / 60f / mass + velocity.y);
         // Clamp velocities within maxVelocity
-        if(velocity.x > maxVelocity) {
-            velocity.x = maxVelocity;
-        } else if(velocity.x < -maxVelocity) {
-            velocity.x = -maxVelocity;
-        }
-        if(velocity.y > maxVelocity) {
-            velocity.y = maxVelocity;
-        } else if(velocity.y < -maxVelocity) {
-            velocity.y = -maxVelocity;
-        }
+        PhysicsMath.clampVectorBelow(velocity, maxVelocity, true, true, true, true);
 
         // Update angular velocity based on forces from last collisions / inputs
         angularVelocity += totalTorque * 1.5f / momentOfInertia;
         // Clamp angular velocity within maxAngularVelocity
-        if(angularVelocity > maxAngularVelocity) {
-            angularVelocity = maxAngularVelocity;
-        } else if(angularVelocity < -maxAngularVelocity) {
-            angularVelocity = -maxAngularVelocity;
-        }
+        PhysicsMath.clampBelow(angularVelocity, maxAngularVelocity, true, true);
 
-        // Reset forces and torques
+        // Reset forces and torques after applying them
         totalLongitudinalForce = new Vector2(0, 0);
         totalTorque = 0;
 
@@ -113,23 +106,18 @@ public class BodyGroup {
         // Update rotation with angularVelocity
         rotation += angularVelocity * dt;
 
-        // Cosine and Sine of the player's rotation property; used for calculating positions of bodies
-        xOffset = (float) Math.cos(Math.toRadians(rotation));
-        yOffset = (float) Math.sin(Math.toRadians(rotation));
-
-        // Update cg based on xOffset and yOffset
-        cg.x = relativeCG.x * xOffset - relativeCG.y * yOffset;
-        cg.y = relativeCG.y * xOffset + relativeCG.x * yOffset;
+        // Calculate the cg and offsets
+        calculateCG();
 
         // Update all modules
         for (int i = 0; i < numBodies; i++) {
             int index = bodies.get(i).getIndex();
+            // TODO get locations from bodies instead of game code
             bodies.get(i).update(new Vector2(position.x + (ProjectEvolve.MODULELOCATIONS[index][0] * xOffset - ProjectEvolve.MODULELOCATIONS[index][1] * yOffset) / ProjectEvolve.PPM, position.y + (ProjectEvolve.MODULELOCATIONS[index][1] * xOffset + ProjectEvolve.MODULELOCATIONS[index][0] * yOffset) / ProjectEvolve.PPM), velocity, rotation);
         }
 
         // Decelerate the body group
-        // TODO make this a percentage of maxVelocities? Also add normal velocity to this
-        angularVelocity -= 1 * angularVelocity * dt;
+        angularVelocity -= angularVelocity * dt;
         velocity.x -= 1 * velocity.x * dt;
         velocity.y -= 1 * velocity.y * dt;
     }
@@ -137,34 +125,19 @@ public class BodyGroup {
     public void applyForce(Vector2 force, Vector2 pointOfApplication, Body bodyOfApplication) {
 
         if(pointOfApplication.len() != 0) {
-            // TODO find more elegant way to do this?
-            if(force.x > .1 && Math.abs(velocity.x) < .1) {
-                velocity.x = .1f;
-            }
-            if(force.x < -.1 && Math.abs(velocity.x) < .1) {
-                velocity.x = -.1f;
-            }
-            if(force.y > .1 && Math.abs(velocity.y) < .1) {
-                velocity.y = .1f;
-            }
-            if(force.y < .1 && Math.abs(velocity.y) < .1) {
-                velocity.y = -.1f;
-            }
+            // Clamp the velocity to be above .1f, helps unUpdate out of collision
+            velocity = PhysicsMath.clampVectorAbove(velocity, .2f, force.x > 0, force.y > 0, force.x < 0, force.y < 0);
+
             // UnUpdate the position of the body to be outside of collision
-            position.x -= velocity.x /* Math.abs(force.x) / force.len()*/ * lastDt; // TODO might need to not dot with force
-            position.y -= velocity.y /* Math.abs(force.y) / force.len()*/ * lastDt;
+            position.x -= velocity.x * Math.abs(force.x) / force.len() * lastDt; // TODO might need to not dot with force
+            position.y -= velocity.y * Math.abs(force.y) / force.len() * lastDt;
             rotation -= angularVelocity * lastDt;
+            //This probably will work, but there are issues with applying force by touch
+//            position = lastPosition;
+//            rotation = lastRotation;
 
-            // TODO find more elegant way to do this?
-            float xOffset;
-            float yOffset;
-            // Cosine and Sine of the player's rotation property; used for calculating positions of bodies
-            xOffset = (float) Math.cos(Math.toRadians(rotation));
-            yOffset = (float) Math.sin(Math.toRadians(rotation));
-
-            // Update cg based on xOffset and yOffset
-            cg.x = relativeCG.x * xOffset - relativeCG.y * yOffset;
-            cg.y = relativeCG.y * xOffset + relativeCG.x * yOffset;
+            // Calculate the cg and offsets
+            calculateCG();
 
             // Calculate the vector from the center of gravity to the point of force application and its magnitude
             Vector2 rVector = new Vector2(bodyOfApplication.getPosition().x - position.x - cg.x + pointOfApplication.x, bodyOfApplication.getPosition().y - position.y - cg.y + pointOfApplication.y);
@@ -177,6 +150,16 @@ public class BodyGroup {
         else {
             totalLongitudinalForce = new Vector2(totalLongitudinalForce.x + force.x, totalLongitudinalForce.y + force.y);
         }
+    }
+
+    private void calculateCG() {
+        // Cosine and Sine of the player's rotation property; used for calculating positions of bodies
+        xOffset = (float) Math.cos(Math.toRadians(rotation));
+        yOffset = (float) Math.sin(Math.toRadians(rotation));
+
+        // Update cg based on xOffset and yOffset
+        cg.x = relativeCG.x * xOffset - relativeCG.y * yOffset;
+        cg.y = relativeCG.y * xOffset + relativeCG.x * yOffset;
     }
 
     public Vector2 getPosition() {

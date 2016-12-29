@@ -11,15 +11,18 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.nic.projectevolve.ProjectEvolve;
 
+import java.util.Locale;
+
 /**
  * Created by nic on 8/4/16.
  */
 public class Hud {
+    // TODO this class needs a lot of refactoring and cleaning
     public Stage stage;
     private Viewport viewport;
 
     private Integer worldTimer;
-    private float timeCount;
+    //private float timeCount;
     private static Integer score;
 
     Label countDownLabel;
@@ -31,7 +34,7 @@ public class Hud {
 
     public Hud(SpriteBatch sb) {
         worldTimer = 300;
-        timeCount = 0;
+        //timeCount = 0;
         score = 0;
 
         viewport = new FitViewport(ProjectEvolve.V_WIDTH, ProjectEvolve.V_HEIGHT, new OrthographicCamera());
@@ -41,8 +44,8 @@ public class Hud {
         table.top();
         table.setFillParent(true);
 
-        countDownLabel = new Label(String.format("%03d", worldTimer), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        scoreLabel = new Label(String.format("%06d", score), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        countDownLabel = new Label(String.format(Locale.US, "%03d", worldTimer), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        scoreLabel = new Label(String.format(Locale.US, "%06d", score), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         timeLabel = new Label("TIME", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         levelLabel = new Label("1-1", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         worldLabel = new Label("WORLD", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
@@ -60,11 +63,12 @@ public class Hud {
 
     }
 
-    public void update(float dt) {
-        scoreLabel.setText(String.format("%06d", score));
+    public void update(int playerEnergy) {
+        scoreLabel.setText(String.format(Locale.US, "%06d", ProjectEvolve.geneticMaterial));
+        countDownLabel.setText(String.format(Locale.US, "%06d", playerEnergy));
     }
 
-    public static void addScore(int newScore) {
-        score += newScore;
-    }
+//    public static void addScore(int newScore) {
+//        score += newScore;
+//    }
 }

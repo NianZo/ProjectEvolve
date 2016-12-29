@@ -28,9 +28,12 @@ public class ProjectEvolve extends Game {
 	public static final short ATTACKING_BIT = 8;
 
 	public static final String[] MODULETEXTURETNAMES = {"normalmodule.png","attackingmodule.png"};
+
+	public static int geneticMaterial;
 	
 	@Override
 	public void create () {
+		geneticMaterial = 0;
 		batch = new SpriteBatch();
 		state = new GameState();
 		setScreen(new MenuScreen(this));

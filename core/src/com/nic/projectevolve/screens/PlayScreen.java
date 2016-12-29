@@ -21,9 +21,12 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.nic.projectevolve.ProjectEvolve;
 import com.nic.projectevolve.physics.BodyList;
+import com.nic.projectevolve.scenes.Hud;
 import com.nic.projectevolve.sprites.Enemy;
 import com.nic.projectevolve.sprites.Player;
 import com.nic.projectevolve.tools.WorldContactListener;
+
+import java.util.ArrayList;
 
 /**
  * Created by nic on 8/4/16.
@@ -37,7 +40,7 @@ public class PlayScreen implements Screen{
     private ProjectEvolve game;
     private OrthographicCamera gameCam;
     private Viewport gamePort;
-    //private Hud hud;
+    private Hud hud;
 
     private OrthogonalTiledMapRenderer renderer;
 
@@ -45,7 +48,7 @@ public class PlayScreen implements Screen{
     private Box2DDebugRenderer b2dr;
 
     private Player player;
-    private Enemy enemy;
+    private ArrayList<Enemy> enemies;
 
     public static BodyList bodyList;
 
@@ -60,7 +63,7 @@ public class PlayScreen implements Screen{
         this.game = game;
         gameCam = new OrthographicCamera();
         gamePort = new FitViewport(ProjectEvolve.V_WIDTH / ProjectEvolve.PPM, ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM, gameCam);
-        //hud = new Hud(game.batch);
+        hud = new Hud(game.batch);
 
         mapLoader = new TmxMapLoader();
         map = mapLoader.load("prealphaworld.tmx");
@@ -78,7 +81,7 @@ public class PlayScreen implements Screen{
         Body body;
 
         player = new Player();
-        enemy = new Enemy(); // TODO needs changed to implement more enemies
+        enemies = new ArrayList<Enemy>();
 
         // TODO move to a B2WorldCreator class, add other objects as needed
         for(MapObject object : map.getLayers().get(2).getObjects().getByType(RectangleMapObject.class)){
@@ -102,6 +105,13 @@ public class PlayScreen implements Screen{
             newBody.setCollisionMask((short) 0);
             System.out.println("Border Object Created");
         }
+
+        for(MapObject object : map.getLayers().get(3).getObjects().getByType(RectangleMapObject.class)) {
+            System.out.println("Adding an enemy");
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            Enemy enemy = new Enemy(player, new Vector2(rect.getX() / ProjectEvolve.PPM, rect.getY() / ProjectEvolve.PPM));
+            enemies.add(enemy);
+        }
     }
 
     @Override
@@ -111,10 +121,10 @@ public class PlayScreen implements Screen{
 
     public void handleInput(float dt) {
         if (Gdx.input.isTouched()) {
-            float velocityScaleFactor = 100;
+            float velocityScaleFactor = 150;
             Vector2 direction = new Vector2(Gdx.input.getX() / ProjectEvolve.PPM - (player.getPosition().x - gameCam.position.x + gamePort.getWorldWidth() / 2), -Gdx.input.getY() / ProjectEvolve.PPM + (-player.getPosition().y + gameCam.position.y + gamePort.getWorldHeight() / 2));
             Vector2 unitDirection = new Vector2(direction.x / direction.len(), direction.y / direction.len());
-            player.addVelocity(unitDirection.x * dt * velocityScaleFactor, unitDirection.y * dt * velocityScaleFactor);
+            player.giveForce(unitDirection.scl(dt).scl(velocityScaleFactor));
         }
     }
 
@@ -122,8 +132,10 @@ public class PlayScreen implements Screen{
         handleInput(dt);
         world.step(1 / 60f, 6, 2);
         player.update(dt);
-        //hud.update(dt);
-        enemy.update(); // TODO more demo enemy code here
+        hud.update(player.getEnergy());
+        for(int i = 0; i < enemies.size(); i++) {
+            enemies.get(i).update(dt);
+        }
 
         // Clamp the gameCam if near the edge of the map
         if(player.getPosition().x >= gamePort.getWorldWidth() / 2 && player.getPosition().x <= (ProjectEvolve.MAPTILEWIDTH * 32 / ProjectEvolve.PPM - gamePort.getWorldWidth() / 2)) {
@@ -151,11 +163,13 @@ public class PlayScreen implements Screen{
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
         player.render(game.batch);
-        enemy.render(game.batch); // TODO more demo enemy code here
+        for(int i = 0; i < enemies.size(); i++) {
+            enemies.get(i).render(game.batch);
+        }
         game.batch.end();
 
-        //game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
-        //hud.stage.draw();
+        game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
+        hud.stage.draw();
 
         if (player.isDead()) {
             game.setScreen(new MenuScreen(game));
@@ -166,10 +180,6 @@ public class PlayScreen implements Screen{
     @Override
     public void resize(int width, int height) {
         gamePort.update(width, height);
-    }
-
-    public static World getWorld() {
-        return world;
     }
 
     @Override

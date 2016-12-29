@@ -14,7 +14,7 @@ public class GameState {
         int i;
         moduleLocations[0] = 0;
         for(i = 1; i < ProjectEvolve.NUMMODULES; i++) {
-            moduleLocations[i] = 0;
+            moduleLocations[i] = -1;
         }
     }
 
