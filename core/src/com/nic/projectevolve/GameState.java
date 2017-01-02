@@ -7,13 +7,14 @@ package com.nic.projectevolve;
  * proper game play.
  */
 public class GameState {
+    public static int geneticMaterial;
     private short[] moduleLocations;
 
     public GameState() {
-        moduleLocations = new short[ProjectEvolve.NUMMODULES];
+        moduleLocations = new short[ProjectEvolve.NUM_MODULES];
         int i;
         moduleLocations[0] = 0;
-        for(i = 1; i < ProjectEvolve.NUMMODULES; i++) {
+        for(i = 1; i < ProjectEvolve.NUM_MODULES; i++) {
             moduleLocations[i] = -1;
         }
     }

@@ -66,6 +66,7 @@ public class Body {
         }
     }
 
+    // TODO rework bodyList to not use getPositionX and getPositionY and to use its own resources
     public float getPositionX() {
         return center.x;
     }
@@ -128,5 +129,9 @@ public class Body {
 
     public Object getUserData() {
         return userData;
+    }
+
+    public BodyGroup getBodyGroup() {
+        return bodyGroup;
     }
 }

@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.nic.projectevolve.GameState;
 import com.nic.projectevolve.ProjectEvolve;
 
 import java.util.Locale;
@@ -64,7 +65,7 @@ public class Hud {
     }
 
     public void update(int playerEnergy) {
-        scoreLabel.setText(String.format(Locale.US, "%06d", ProjectEvolve.geneticMaterial));
+        scoreLabel.setText(String.format(Locale.US, "%06d", GameState.geneticMaterial));
         countDownLabel.setText(String.format(Locale.US, "%06d", playerEnergy));
     }
 

@@ -25,7 +25,7 @@ public class ModuleSpawner {
 
     public ModuleSpawner(int type, Vector2 position) {
         moduleType = (short) type;
-        Texture texture = new Texture(ProjectEvolve.MODULETEXTURETNAMES[type]);
+        Texture texture = new Texture(ProjectEvolve.MODULE_TEXTURE_NAMES[type]);
         sprite = new Sprite(texture);
         sprite.setBounds(0, 0, 50 / ProjectEvolve.PPM, 50 / ProjectEvolve.PPM);
         sprite.setPosition(position.x, position.y);

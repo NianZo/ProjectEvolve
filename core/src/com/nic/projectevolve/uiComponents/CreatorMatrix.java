@@ -40,7 +40,7 @@ public class CreatorMatrix {
     private Sprite sprite;
 
     private Circle[] sockets;
-    private int numSockets = ProjectEvolve.NUMMODULES;
+    private int numSockets = ProjectEvolve.NUM_MODULES;
     private short[] occupied;
 
     public CreatorMatrix(String textureName, Vector2 position) {

@@ -114,10 +114,8 @@ public class BodyList {
             // Calculate and test flags
             selfTestFlag = i == bodies.indexOf(testBody);
             collisionMaskFlag = (testBody.getCollisionMask() & bodies.get(i).getCollisionIdentity()) != 0;
-            //isPlayerFlag = (testBody.getCollisionIdentity() & ProjectEvolve.PLAYER_BIT) != 0;
             // Test flags (Only want to test collision if flags tell us to)
-            // TODO with collision engine redesign, I can give all bodies attached to a bodyGroup a unique id, allow me to not test against each other
-            if(!selfTestFlag && collisionMaskFlag && circleFlag /*&& isPlayerFlag*/) {
+            if(!selfTestFlag && collisionMaskFlag && circleFlag && !testBody.getBodyGroup().equals(currentBody.getBodyGroup())/*&& isPlayerFlag*/) {
                 if(bodies.get(i).getIsCircle()) {
                     // Collided body is a circle
                     relativePositionVector = new Vector2(testBodyPositionX - currentBody.getPositionX(), testBodyPositionY - currentBody.getPositionY());

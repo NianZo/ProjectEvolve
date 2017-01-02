@@ -31,7 +31,7 @@ public class Player {
     private float energyTime;
 
     public Player() {
-        modules = new Module[ProjectEvolve.NUMMODULES];
+        modules = new Module[ProjectEvolve.NUM_MODULES];
         cg = new Vector2(0, 16/ProjectEvolve.PPM);
 
         numModules = 0;
@@ -43,11 +43,11 @@ public class Player {
 
         // Create Modules for the player
         int i;
-        for(i = 0; i < ProjectEvolve.NUMMODULES; i++) {
+        for(i = 0; i < ProjectEvolve.NUM_MODULES; i++) {
             if(ProjectEvolve.state.getModule(i) != -1) {
                 //System.out.println(i);
                 // TODO will this cause memory issues? Can't dispose textures if I don't have a reference to it
-                modules[numModules] = new Module(new Texture(ProjectEvolve.MODULETEXTURETNAMES[ProjectEvolve.state.getModule(i)]), new Vector2(position.x + ProjectEvolve.MODULELOCATIONS[i][0] / ProjectEvolve.PPM, position.y + ProjectEvolve.MODULELOCATIONS[i][1] / ProjectEvolve.PPM));
+                modules[numModules] = new Module(new Texture(ProjectEvolve.MODULE_TEXTURE_NAMES[ProjectEvolve.state.getModule(i)]), new Vector2(position.x + ProjectEvolve.MODULE_LOCATIONS[i][0] / ProjectEvolve.PPM, position.y + ProjectEvolve.MODULE_LOCATIONS[i][1] / ProjectEvolve.PPM));
                 //System.out.println(modules[numModules].getPosition().x);
                 Body newBody = new Body(bodyGroup, modules[numModules].getPosition(), 16 / ProjectEvolve.PPM, 16 / ProjectEvolve.PPM, true, i);
                 if(ProjectEvolve.state.getModule(i) == 0) {
@@ -83,7 +83,7 @@ public class Player {
 
     public void render(SpriteBatch batch) {
         int i;
-        for (i = 0; i < ProjectEvolve.NUMMODULES; i++) {
+        for (i = 0; i < ProjectEvolve.NUM_MODULES; i++) {
             if (modules[i] != null) {
                 modules[i].draw(batch);
             }

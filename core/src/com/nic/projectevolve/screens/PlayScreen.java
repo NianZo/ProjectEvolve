@@ -53,7 +53,6 @@ public class PlayScreen implements Screen{
     public static BodyList bodyList;
 
     public PlayScreen(ProjectEvolve game) {
-        // TODO moved from class variables, not sure if this is a perfect solution
         com.nic.projectevolve.physics.Body newBody;
         TmxMapLoader mapLoader;
         TiledMap map;
@@ -83,7 +82,7 @@ public class PlayScreen implements Screen{
         player = new Player();
         enemies = new ArrayList<Enemy>();
 
-        // TODO move to a B2WorldCreator class, add other objects as needed
+        // TODO clean up to remove Box2D code after debug lines aren't needed
         for(MapObject object : map.getLayers().get(2).getObjects().getByType(RectangleMapObject.class)){
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
 
@@ -138,10 +137,10 @@ public class PlayScreen implements Screen{
         }
 
         // Clamp the gameCam if near the edge of the map
-        if(player.getPosition().x >= gamePort.getWorldWidth() / 2 && player.getPosition().x <= (ProjectEvolve.MAPTILEWIDTH * 32 / ProjectEvolve.PPM - gamePort.getWorldWidth() / 2)) {
+        if(player.getPosition().x >= gamePort.getWorldWidth() / 2 && player.getPosition().x <= (ProjectEvolve.MAP_TILE_WIDTH * 32 / ProjectEvolve.PPM - gamePort.getWorldWidth() / 2)) {
             gameCam.position.x = player.getPosition().x;
         }
-        if(player.getPosition().y >= gamePort.getWorldHeight() / 2 && player.getPosition().y <= (ProjectEvolve.MAPTILEHEIGHT * 32 / ProjectEvolve.PPM - gamePort.getWorldHeight() / 2)) {
+        if(player.getPosition().y >= gamePort.getWorldHeight() / 2 && player.getPosition().y <= (ProjectEvolve.MAP_TILE_HEIGHT * 32 / ProjectEvolve.PPM - gamePort.getWorldHeight() / 2)) {
             gameCam.position.y = player.getPosition().y;
         }
 
@@ -197,6 +196,7 @@ public class PlayScreen implements Screen{
 
     }
 
+    // TODO dispose of all textures and such
     @Override
     public void dispose() {
 

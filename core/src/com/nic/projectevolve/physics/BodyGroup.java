@@ -71,8 +71,8 @@ public class BodyGroup {
         // TODO pass in locations instead of getting them from game code directly
         Vector2 cgRunningTotal = new Vector2(0, 0);
         for(int i = 0; i < numBodies; i++) {
-            cgRunningTotal.x += ProjectEvolve.MODULELOCATIONS[bodies.get(i).getIndex()][0] / ProjectEvolve.PPM;
-            cgRunningTotal.y += ProjectEvolve.MODULELOCATIONS[bodies.get(i).getIndex()][1] / ProjectEvolve.PPM;
+            cgRunningTotal.x += ProjectEvolve.MODULE_LOCATIONS[bodies.get(i).getIndex()][0] / ProjectEvolve.PPM;
+            cgRunningTotal.y += ProjectEvolve.MODULE_LOCATIONS[bodies.get(i).getIndex()][1] / ProjectEvolve.PPM;
             System.out.println(cgRunningTotal.y);
         }
         relativeCG.x = cgRunningTotal.x / numBodies;
@@ -113,7 +113,7 @@ public class BodyGroup {
         for (int i = 0; i < numBodies; i++) {
             int index = bodies.get(i).getIndex();
             // TODO get locations from bodies instead of game code
-            bodies.get(i).update(new Vector2(position.x + (ProjectEvolve.MODULELOCATIONS[index][0] * xOffset - ProjectEvolve.MODULELOCATIONS[index][1] * yOffset) / ProjectEvolve.PPM, position.y + (ProjectEvolve.MODULELOCATIONS[index][1] * xOffset + ProjectEvolve.MODULELOCATIONS[index][0] * yOffset) / ProjectEvolve.PPM), velocity, rotation);
+            bodies.get(i).update(new Vector2(position.x + (ProjectEvolve.MODULE_LOCATIONS[index][0] * xOffset - ProjectEvolve.MODULE_LOCATIONS[index][1] * yOffset) / ProjectEvolve.PPM, position.y + (ProjectEvolve.MODULE_LOCATIONS[index][1] * xOffset + ProjectEvolve.MODULE_LOCATIONS[index][0] * yOffset) / ProjectEvolve.PPM), velocity, rotation);
         }
 
         // Decelerate the body group

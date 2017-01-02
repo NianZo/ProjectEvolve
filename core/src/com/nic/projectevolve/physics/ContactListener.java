@@ -1,5 +1,6 @@
 package com.nic.projectevolve.physics;
 
+import com.nic.projectevolve.GameState;
 import com.nic.projectevolve.ProjectEvolve;
 import com.nic.projectevolve.sprites.Enemy;
 import com.nic.projectevolve.sprites.Player;
@@ -19,7 +20,7 @@ public class ContactListener {
             enemy.addEnergy(-10);
             if(enemy.isDead()) {
                 player.addEnergy(50);
-                ProjectEvolve.geneticMaterial++;
+                GameState.geneticMaterial++;
             }
         }
         if (a.getCollisionIdentity() == (ProjectEvolve.PLAYER_BIT | ProjectEvolve.ATTACKING_BIT) && b.getCollisionIdentity() == ProjectEvolve.ENEMY_BIT) {
@@ -29,7 +30,7 @@ public class ContactListener {
             enemy.addEnergy(-30);
             if(enemy.isDead()) {
                 player.addEnergy(50);
-                ProjectEvolve.geneticMaterial++;
+                GameState.geneticMaterial++;
             }
         }
     }

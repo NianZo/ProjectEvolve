@@ -107,7 +107,7 @@ public class CreatorScreen implements Screen{
         creatorMatrix = new CreatorMatrix("hexagongrid.png", new Vector2(ProjectEvolve.V_WIDTH / 2 / ProjectEvolve.PPM, ProjectEvolve.V_HEIGHT / 2 / ProjectEvolve.PPM));
 
         // Load module locations from gameState
-        for(int i = 0; i < ProjectEvolve.NUMMODULES; i++) {
+        for(int i = 0; i < ProjectEvolve.NUM_MODULES; i++) {
             if(ProjectEvolve.state.getModule(i) != -1) {
                 modules[numModules] = new DraggableImage(ProjectEvolve.state.getModule(i), creatorMatrix.getSocketLocation(i), creatorMatrix);
                 modules[numModules].place(numModules, i);

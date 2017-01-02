@@ -29,7 +29,7 @@ public class DraggableImage {
         this.matrix = matrix;
         moduleType = (short) type;
 
-        texture = new Texture(ProjectEvolve.MODULETEXTURETNAMES[type]);
+        texture = new Texture(ProjectEvolve.MODULE_TEXTURE_NAMES[type]);
         sprite = new Sprite(texture);
         sprite.setBounds(0, 0, 50 / ProjectEvolve.PPM, 50 / ProjectEvolve.PPM);
         sprite.setPosition(position.x, position.y);
