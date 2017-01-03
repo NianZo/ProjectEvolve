@@ -53,10 +53,10 @@ public class MenuScreen implements Screen {
 
         skin.add("white", new Texture(pixmap));
 
-        // Store default libgdx font as "default"
-        BitmapFont bfont = new BitmapFont();
+        // Store default libGdx font as "default"
+        BitmapFont bFont = new BitmapFont();
         // skipping a scale line because BitmapFont.scale(int) is undefined
-        skin.add("default", bfont);
+        skin.add("default", bFont);
 
         // Configuring a TextButtonStyle named "default"
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
@@ -75,9 +75,10 @@ public class MenuScreen implements Screen {
         stage.addActor(playButton);
 
         TextButton createButton = new TextButton("Creator", skin);
-        createButton.setPosition(Gdx.graphics.getWidth() / 2 - playButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 - 3 *playButton.getHeight() / 2);
+        createButton.setPosition(Gdx.graphics.getWidth() / 2 - playButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 - 3 * playButton.getHeight() / 2);
         stage.addActor(createButton);
 
+        // TODO to fix input issues on resizing screen, need to implement touch events myself
         // Create event handler for playButton
         playButton.addListener(new ChangeListener() {
             @Override
@@ -115,6 +116,8 @@ public class MenuScreen implements Screen {
     public void resize(int width, int height) {
         //stage.setViewport(width, height, false);
         gamePort.update(width, height);
+        //gameCam.update();
+
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.nic.projectevolve.physics;
 
 import com.badlogic.gdx.math.Vector2;
 import com.nic.projectevolve.ProjectEvolve;
-import com.nic.projectevolve.screens.PlayScreen;
 
 /**
  * Created by nic on 8/27/16.
@@ -13,6 +12,7 @@ import com.nic.projectevolve.screens.PlayScreen;
 
 public class Body {
     private Vector2 center;
+    private Vector2 offset;
 
     private short collisionMask;
     private short collisionIdentity;
@@ -24,22 +24,30 @@ public class Body {
     private float radiusY;
     private boolean isCircle;
 
+    private float mass;
+
     private BodyGroup bodyGroup;
-    private int bodyIndex;
 
     // Generic object lets programmer add an object to reference on collisions (via ContactListener)
     private Object userData;
 
-    public Body(BodyGroup bodyGroup, Vector2 center, float radiusX, float radiusY, boolean isCircle, int index) {
+    public Body(BodyGroup bodyGroup, Vector2 center, float radiusX, float radiusY, boolean isCircle) {
         this.center = center;
         this.bodyGroup = bodyGroup;
         this.velocity = new Vector2(0, 0);
         this.isCircle = isCircle;
         this.radiusX = radiusX;
         this.radiusY = radiusY;
-        bodyIndex = index;
 
-        PlayScreen.bodyList.AddBody(this);
+        // TODO initialize dynamically based on module type
+        mass = 1;
+
+        offset = new Vector2();
+        offset.x = center.x - bodyGroup.getPosition().x;
+        offset.y = center.y - bodyGroup.getPosition().y;
+
+        // Add this body the the bodyList that handles collisions
+        bodyGroup.getBodyList().AddBody(this);
     }
 
     public void update(Vector2 position, Vector2 velocity, float rotation) {
@@ -60,21 +68,20 @@ public class Body {
 
         // If the object moved the collision should be tested
         if(moved) {
-            PlayScreen.bodyList.updatePosition(this);
-            PlayScreen.bodyList.testCollision(this);
-            System.out.println("Updating a Body");
+            bodyGroup.getBodyList().updatePosition(this);
+            bodyGroup.getBodyList().testCollision(this);
         }
     }
 
-    // TODO rework bodyList to not use getPositionX and getPositionY and to use its own resources
-    public float getPositionX() {
-        return center.x;
+    // Apply a force forceVector on point forceApplicationPoint (relative to this body)
+    public void giveForce(Vector2 forceVector, Vector2 forceApplicationPoint) {
+        // Pass the force to the body group with a reference to this body so the force can be calculated relative to the cg
+        bodyGroup.applyForce(forceVector, forceApplicationPoint, this);
     }
 
-    public float getPositionY() {
-        return center.y;
-    }
-
+    //////////////////////
+    // Getters and Setters
+    //////////////////////
     public Vector2 getPosition() {
         return center;
     }
@@ -115,14 +122,6 @@ public class Body {
         return collisionMask;
     }
 
-    public int getIndex() {
-        return bodyIndex;
-    }
-
-    public void giveForce(Vector2 forceVector, Vector2 forceApplicationPoint) {
-        bodyGroup.applyForce(forceVector, forceApplicationPoint, this);
-    }
-
     public void setUserData(Object object) {
         userData = object;
     }
@@ -133,5 +132,13 @@ public class Body {
 
     public BodyGroup getBodyGroup() {
         return bodyGroup;
+    }
+
+    public Vector2 getOffset() {
+        return offset;
+    }
+
+    public float getMass() {
+        return mass;
     }
 }

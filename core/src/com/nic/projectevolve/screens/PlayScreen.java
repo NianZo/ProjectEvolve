@@ -11,20 +11,15 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.nic.projectevolve.ProjectEvolve;
+import com.nic.projectevolve.physics.Body;
+import com.nic.projectevolve.physics.BodyGroup;
 import com.nic.projectevolve.physics.BodyList;
 import com.nic.projectevolve.scenes.Hud;
 import com.nic.projectevolve.sprites.Enemy;
 import com.nic.projectevolve.sprites.Player;
-import com.nic.projectevolve.tools.WorldContactListener;
 
 import java.util.ArrayList;
 
@@ -37,76 +32,64 @@ import java.util.ArrayList;
  * and input.
  */
 public class PlayScreen implements Screen{
+    // This has to be passed since the spriteBatch shouldn't be static
     private ProjectEvolve game;
+
+    // Required objects for rendering all parts of the scene
     private OrthographicCamera gameCam;
     private Viewport gamePort;
-    private Hud hud;
-
     private OrthogonalTiledMapRenderer renderer;
 
-    private static World world;
-    private Box2DDebugRenderer b2dr;
+    private Hud hud;
 
     private Player player;
     private ArrayList<Enemy> enemies;
 
+    // Used to scale input when the display size changes
+    private Vector2 inputScaleAdjuster;
+
+    // Create the body list that will handle all collision
     public static BodyList bodyList;
 
     public PlayScreen(ProjectEvolve game) {
-        com.nic.projectevolve.physics.Body newBody;
-        TmxMapLoader mapLoader;
-        TiledMap map;
-
-        bodyList = new BodyList();
-
         this.game = game;
+
+        // Create gameCam and gamePort and center gameCam (makes 0,0 bottom left)
         gameCam = new OrthographicCamera();
         gamePort = new FitViewport(ProjectEvolve.V_WIDTH / ProjectEvolve.PPM, ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM, gameCam);
+        gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
+        inputScaleAdjuster = new Vector2(1, 1);
+
+        // Load the map and give it to the renderer with the pixel scale
+        TmxMapLoader mapLoader = new TmxMapLoader();
+        TiledMap map = mapLoader.load("pre_alpha_world.tmx");
+        renderer = new OrthogonalTiledMapRenderer(map, 1 / ProjectEvolve.PPM);
+
+        // Create the bodyList (note that this must be done before any collision bodies are created anywhere)
+        bodyList = new BodyList();
+        BodyList.setPPM(ProjectEvolve.PPM);
+
+        // Create the HUD
         hud = new Hud(game.batch);
 
-        mapLoader = new TmxMapLoader();
-        map = mapLoader.load("prealphaworld.tmx");
-        renderer = new OrthogonalTiledMapRenderer(map, 1 / ProjectEvolve.PPM);
-        // to center map (originally around origin)
-        gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
-
-        world = new World(new Vector2(0, 0), true);
-        world.setContactListener(new WorldContactListener()); // test code
-        b2dr = new Box2DDebugRenderer();
-
-        BodyDef bdef = new BodyDef();
-        PolygonShape shape = new PolygonShape();
-        FixtureDef fdef = new FixtureDef();
-        Body body;
-
+        // Create the player
         player = new Player();
-        enemies = new ArrayList<Enemy>();
 
-        // TODO clean up to remove Box2D code after debug lines aren't needed
+        // Create border objects based on the .tmx level file
+        BodyGroup edgeGroup = new BodyGroup(new Vector2(0, 0), bodyList, 0, 0);
         for(MapObject object : map.getLayers().get(2).getObjects().getByType(RectangleMapObject.class)){
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
 
-            // Could probably keep everything above this if implementing own collision system
-            bdef.type = BodyDef.BodyType.StaticBody;
-            bdef.position.set((rect.getX() + rect.getWidth() / 2) / ProjectEvolve.PPM, (rect.getY() + rect.getHeight() / 2) / ProjectEvolve.PPM);
-
-            body = world.createBody(bdef);
-
-            shape.setAsBox(rect.getWidth() / 2 / ProjectEvolve.PPM, rect.getHeight() / 2 / ProjectEvolve.PPM);
-            fdef.shape = shape;
-            fdef.filter.categoryBits = ProjectEvolve.EDGE_BIT;
-            body.createFixture(fdef);
-
-            // Physics Engine testing code
-            newBody = new com.nic.projectevolve.physics.Body(null, new Vector2((rect.getX() + rect.getWidth() / 2) / ProjectEvolve.PPM, (rect.getY() + rect.getHeight() / 2) / ProjectEvolve.PPM),
-                    Math.abs(rect.getWidth()) / (2 * ProjectEvolve.PPM), Math.abs(rect.getHeight()) / (2 * ProjectEvolve.PPM), false, 0);
-            newBody.setCollisionIdentity((short) 1);
-            newBody.setCollisionMask((short) 0);
-            System.out.println("Border Object Created");
+            Body newBody = new Body(edgeGroup, new Vector2((rect.getX() + rect.getWidth() / 2) / ProjectEvolve.PPM, (rect.getY() + rect.getHeight() / 2) / ProjectEvolve.PPM),
+                    Math.abs(rect.getWidth()) / (2 * ProjectEvolve.PPM), Math.abs(rect.getHeight()) / (2 * ProjectEvolve.PPM), false);
+            newBody.setCollisionIdentity(ProjectEvolve.EDGE_BIT);
+            newBody.setCollisionMask(ProjectEvolve.NOTHING_BIT);
+            edgeGroup.addBody(newBody);
         }
 
+        // Create enemies based on the .tmx level file
+        enemies = new ArrayList<Enemy>();
         for(MapObject object : map.getLayers().get(3).getObjects().getByType(RectangleMapObject.class)) {
-            System.out.println("Adding an enemy");
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             Enemy enemy = new Enemy(player, new Vector2(rect.getX() / ProjectEvolve.PPM, rect.getY() / ProjectEvolve.PPM));
             enemies.add(enemy);
@@ -119,22 +102,34 @@ public class PlayScreen implements Screen{
     }
 
     public void handleInput(float dt) {
+        // If the screen is touched apply a force to the player
         if (Gdx.input.isTouched()) {
+            // Correction factor to get the force in the range needed
             float velocityScaleFactor = 150;
-            Vector2 direction = new Vector2(Gdx.input.getX() / ProjectEvolve.PPM - (player.getPosition().x - gameCam.position.x + gamePort.getWorldWidth() / 2), -Gdx.input.getY() / ProjectEvolve.PPM + (-player.getPosition().y + gameCam.position.y + gamePort.getWorldHeight() / 2));
+
+            // Calculate vector and unit vector from the player to the touch location
+            Vector2 direction = new Vector2((Gdx.input.getX() - gamePort.getLeftGutterWidth()) * inputScaleAdjuster.x / ProjectEvolve.PPM - (player.getPosition().x - gameCam.position.x + gamePort.getWorldWidth() / 2), (-Gdx.input.getY() + gamePort.getTopGutterHeight()) * inputScaleAdjuster.y / ProjectEvolve.PPM + (-player.getPosition().y + gameCam.position.y + gamePort.getWorldHeight() / 2));
             Vector2 unitDirection = new Vector2(direction.x / direction.len(), direction.y / direction.len());
+
+            // Apply a force of magnitude velocityScaleFactor * dt in the direction from the player to the cursor
             player.giveForce(unitDirection.scl(dt).scl(velocityScaleFactor));
         }
     }
 
     public void update(float dt) {
+        // Handle input before updating anything
         handleInput(dt);
-        world.step(1 / 60f, 6, 2);
+
+        // Update player
         player.update(dt);
-        hud.update(player.getEnergy());
+
+        // Update enemies
         for(int i = 0; i < enemies.size(); i++) {
             enemies.get(i).update(dt);
         }
+
+        // Update HUD
+        hud.update(player.getEnergy());
 
         // Clamp the gameCam if near the edge of the map
         if(player.getPosition().x >= gamePort.getWorldWidth() / 2 && player.getPosition().x <= (ProjectEvolve.MAP_TILE_WIDTH * 32 / ProjectEvolve.PPM - gamePort.getWorldWidth() / 2)) {
@@ -144,21 +139,26 @@ public class PlayScreen implements Screen{
             gameCam.position.y = player.getPosition().y;
         }
 
+        // Update the gameCame
         gameCam.update();
-        renderer.setView(gameCam); // only render what gameCam can see
+
+        // For the world, only render what the gameCam can see
+        renderer.setView(gameCam);
     }
 
     @Override
     public void render(float delta) {
+        // Update everything before rendering
         update(delta);
 
-        Gdx.gl.glClearColor(1, 0, 0, 1);
+        // Clear the screen to black and clear the color buffer
+        Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        // Render the world
         renderer.render();
 
-        b2dr.render(world, gameCam.combined);
-
+        // Render player and enemies
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
         player.render(game.batch);
@@ -167,9 +167,11 @@ public class PlayScreen implements Screen{
         }
         game.batch.end();
 
+        // Render the HUD
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
 
+        // If the player is dead, go to the menu screen and dispose of resources from this screen
         if (player.isDead()) {
             game.setScreen(new MenuScreen(game));
             dispose();
@@ -179,6 +181,8 @@ public class PlayScreen implements Screen{
     @Override
     public void resize(int width, int height) {
         gamePort.update(width, height);
+        inputScaleAdjuster.x = (float) ProjectEvolve.V_WIDTH / (width - gamePort.getLeftGutterWidth() - gamePort.getRightGutterWidth());
+        inputScaleAdjuster.y = (float) ProjectEvolve.V_HEIGHT / (height - gamePort.getTopGutterHeight() - gamePort.getBottomGutterHeight());
     }
 
     @Override
@@ -196,9 +200,13 @@ public class PlayScreen implements Screen{
 
     }
 
-    // TODO dispose of all textures and such
     @Override
     public void dispose() {
-
+        renderer.dispose();
+        hud.dispose();
+        player.dispose();
+        for(int i = 0; i < enemies.size(); i++) {
+            enemies.get(i).dispose();
+        }
     }
 }

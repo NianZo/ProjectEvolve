@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.nic.projectevolve.ProjectEvolve;
 import com.nic.projectevolve.physics.Body;
 import com.nic.projectevolve.physics.BodyGroup;
+import com.nic.projectevolve.screens.PlayScreen;
 
 /**
  * Created by nic on 8/4/16.
@@ -19,25 +20,28 @@ public class Player {
 
     private boolean dead = false;
 
-    Vector2 cg;
-
     // Modules that make up the player
     public Module[] modules;
-
-    private BodyGroup bodyGroup;
     private int numModules;
 
+    private BodyGroup bodyGroup;
+
+    // Player will die when energy reaches zero or below, energyTime is a intermediate placeholder for reducing energy each second
     private int energy;
     private float energyTime;
 
     public Player() {
+        // Initialize modules array and numModules counter
         modules = new Module[ProjectEvolve.NUM_MODULES];
-        cg = new Vector2(0, 16/ProjectEvolve.PPM);
-
         numModules = 0;
-        position = new Vector2(128 / ProjectEvolve.PPM, 128 / ProjectEvolve.PPM);
-        bodyGroup = new BodyGroup(position);
 
+        // Initialize player to 128,128 pixels
+        position = new Vector2(128 / ProjectEvolve.PPM, 128 / ProjectEvolve.PPM);
+
+        // Create the player's bodyGroup
+        bodyGroup = new BodyGroup(position, PlayScreen.bodyList, ProjectEvolve.MAX_VELOCITY, ProjectEvolve.MAX_ANGULAR_VELOCITY);
+
+        // Initialize energy values
         energy = 100;
         energyTime = 0;
 
@@ -45,52 +49,62 @@ public class Player {
         int i;
         for(i = 0; i < ProjectEvolve.NUM_MODULES; i++) {
             if(ProjectEvolve.state.getModule(i) != -1) {
-                //System.out.println(i);
-                // TODO will this cause memory issues? Can't dispose textures if I don't have a reference to it
-                modules[numModules] = new Module(new Texture(ProjectEvolve.MODULE_TEXTURE_NAMES[ProjectEvolve.state.getModule(i)]), new Vector2(position.x + ProjectEvolve.MODULE_LOCATIONS[i][0] / ProjectEvolve.PPM, position.y + ProjectEvolve.MODULE_LOCATIONS[i][1] / ProjectEvolve.PPM));
-                //System.out.println(modules[numModules].getPosition().x);
-                Body newBody = new Body(bodyGroup, modules[numModules].getPosition(), 16 / ProjectEvolve.PPM, 16 / ProjectEvolve.PPM, true, i);
+                // Create module and body
+                modules[numModules] = new Module(new Texture(ProjectEvolve.MODULE_TEXTURE_NAMES[ProjectEvolve.state.getModule(i)]), new Vector2(position.x + ProjectEvolve.MODULE_LOCATIONS[i][0], position.y + ProjectEvolve.MODULE_LOCATIONS[i][1]));
+                Body newBody = new Body(bodyGroup, modules[numModules].getPosition(), 16 / ProjectEvolve.PPM, 16 / ProjectEvolve.PPM, true);
+
+                // Set collision identity based on the type of module
                 if(ProjectEvolve.state.getModule(i) == 0) {
                     newBody.setCollisionIdentity(ProjectEvolve.PLAYER_BIT); // Blue modules
                 } else if(ProjectEvolve.state.getModule(i) == 1) {
                     newBody.setCollisionIdentity((short) (ProjectEvolve.PLAYER_BIT | ProjectEvolve.ATTACKING_BIT));
                 }
+
+                // Set collision mask and user data of body
                 newBody.setCollisionMask((short) (ProjectEvolve.ENEMY_BIT | ProjectEvolve.EDGE_BIT));
                 newBody.setUserData(this);
+
+                // Finish giving all objects references to things they need
                 bodyGroup.addBody(newBody);
                 modules[numModules].setBody(newBody);
+
+                // Let the player class know the number of modules
                 numModules++;
             }
         }
     }
 
     public void update(float dt) {
+        // Add the delta time to energy time
         energyTime += dt;
+
+        // After a second, reset energy time and decrement energy
         if(energyTime > 1) {
             energyTime = 0;
             energy--;
+            // If energy is zero or below then the player is dead
+            dead = energy <= 0;
         }
-        if(energy <= 0) {
-            dead = true;
-        }
+
+        // Update bodyGroup for physics calculations and get resultant position
         bodyGroup.update(dt);
         position = bodyGroup.getPosition();
 
+        // Update all occupied modules
         for(int i = 0; i < numModules; i++) {
             modules[i].update();
         }
     }
 
     public void render(SpriteBatch batch) {
-        int i;
-        for (i = 0; i < ProjectEvolve.NUM_MODULES; i++) {
-            if (modules[i] != null) {
-                modules[i].draw(batch);
-            }
+        // Render each module
+        for (int i = 0; i < numModules; i++) {
+            modules[i].draw(batch);
         }
     }
 
     public void giveForce(Vector2 force) {
+        // Pass applied force on to the bodyGroup indicating that it should be on the CG
         bodyGroup.applyForce(force, new Vector2(0, 0), modules[0].getBody());
     }
 
@@ -98,13 +112,8 @@ public class Player {
         return position;
     }
 
-//    public void hit() {
-//        //dead = true;
-//        energy += 25;
-//        System.out.println("Hit Enemy!");
-//    }
-
     public void addEnergy(int energy) {
+        // Add energy and test to see if the player is dead
         this.energy += energy;
         dead = this.energy <= 0;
     }
@@ -115,5 +124,11 @@ public class Player {
 
     public int getEnergy() {
         return energy;
+    }
+
+    public void dispose() {
+        for(int i = 0; i < numModules; i++) {
+            modules[i].dispose();
+        }
     }
 }

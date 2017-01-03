@@ -10,7 +10,7 @@
  </layer>
  <layer name="Tile Layer 2" width="50" height="50">
   <data encoding="base64" compression="zlib">
-   eJztwQENAAAAwqD3T20ON6AAAAAAAAAAAADg3wAnEAAB
+   eJztzwEJADAMwLAx/6Jvox8JVEB3ZvZIv/PR4qPFR4uPFh8tPlp8tPho8dHio8VHi48WHy0+Wny0+Gjx0eKjxUeLjxYfLT5afLRc+7jQAxQiAYk=
   </data>
  </layer>
  <objectgroup name="Edge">
@@ -24,7 +24,7 @@
   <object id="10" x="0" y="32" width="32" height="928"/>
   <object id="11" x="0" y="960" width="32" height="608"/>
  </objectgroup>
- <objectgroup name="Enemies">
+ <objectgroup name="Enemies" visible="0">
   <object id="17" x="416" y="1248" width="32" height="32"/>
   <object id="18" x="480" y="1376" width="32" height="32"/>
  </objectgroup>

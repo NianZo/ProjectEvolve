@@ -1,7 +1,6 @@
 package com.nic.projectevolve.physics;
 
 import com.badlogic.gdx.math.Vector2;
-
 import java.util.ArrayList;
 
 /**
@@ -21,6 +20,7 @@ import java.util.ArrayList;
 public class BodyList {
 
     //private static final float separationDistance = 0.001f;
+    private static float PPM = 1;
 
     private static final float root2over2 = (float) Math.sqrt(2) / 2;
 
@@ -39,8 +39,8 @@ public class BodyList {
 
     // This function will add Body to the list and make sure the list stays ordered in terms of xPosition
     public void AddBody(Body newBody) {
-        float newPositionX = newBody.getPositionX();
-        float newPositionY = newBody.getPositionY();
+        float newPositionX = newBody.getPosition().x;
+        float newPositionY = newBody.getPosition().y;
         if (bodies.isEmpty()) {
             bodies.add(newBody);
             positionsX.add(newPositionX);
@@ -92,8 +92,8 @@ public class BodyList {
 
     public void testCollision(Body testBody) {
         //int endingIndex = bodies.size() - 1;
-        float testBodyPositionX = testBody.getPositionX();
-        float testBodyPositionY = testBody.getPositionY();
+        float testBodyPositionX = testBody.getPosition().x;
+        float testBodyPositionY = testBody.getPosition().y;
         float testBodyRadiusX = testBody.getRadiusX();
         float testBodyRadiusY = testBody.getRadiusY();
 
@@ -104,9 +104,7 @@ public class BodyList {
         boolean selfTestFlag;
         boolean collisionMaskFlag;
         boolean circleFlag = testBody.getIsCircle();
-        //boolean isPlayerFlag;
         // Iterate through all bodies
-        // TODO Find a smarter way to do this
         int i;
         for(i = 0; i < bodies.size(); i++) {
             // Find body we are testing against
@@ -118,7 +116,7 @@ public class BodyList {
             if(!selfTestFlag && collisionMaskFlag && circleFlag && !testBody.getBodyGroup().equals(currentBody.getBodyGroup())/*&& isPlayerFlag*/) {
                 if(bodies.get(i).getIsCircle()) {
                     // Collided body is a circle
-                    relativePositionVector = new Vector2(testBodyPositionX - currentBody.getPositionX(), testBodyPositionY - currentBody.getPositionY());
+                    relativePositionVector = new Vector2(testBodyPositionX - positionsX.get(i), testBodyPositionY - positionsY.get(i));
                     magRelativePosition = getMagnitude(relativePositionVector.x, relativePositionVector.y);
                     if(magRelativePosition < testBodyRadiusX + currentBody.getRadiusX()) {
                         // Resolve Collision
@@ -128,32 +126,32 @@ public class BodyList {
                 } else {
                     // Collided body is not a circle
                     // Test corners first, diagonal normals
-                    if(getMagnitude(testBodyPositionX - (currentBody.getPositionX() + currentBody.getRadiusX()), testBodyPositionY - (currentBody.getPositionY() + currentBody.getRadiusY())) < testBodyRadiusX) {
+                    if(getMagnitude(testBodyPositionX - (positionsX.get(i) + currentBody.getRadiusX()), testBodyPositionY - (positionsY.get(i) + currentBody.getRadiusY())) < testBodyRadiusX) {
                         // Top-Right corner
                         unitNormal = new Vector2(root2over2, root2over2);
                         resolveCollisionTest2(testBody, currentBody, unitNormal, new Vector2(-unitNormal.x * testBodyRadiusX, -unitNormal.y * testBodyRadiusX));
-                    } else if(getMagnitude(testBodyPositionX - (currentBody.getPositionX() + currentBody.getRadiusX()), testBodyPositionY - (currentBody.getPositionY() - currentBody.getRadiusY())) < testBodyRadiusX) {
+                    } else if(getMagnitude(testBodyPositionX - (positionsX.get(i) + currentBody.getRadiusX()), testBodyPositionY - (positionsY.get(i) - currentBody.getRadiusY())) < testBodyRadiusX) {
                         // Bottom-Right corner
                         unitNormal = new Vector2(root2over2, -root2over2);
                         resolveCollisionTest2(testBody, currentBody, unitNormal, new Vector2(-unitNormal.x * testBodyRadiusX, -unitNormal.y * testBodyRadiusX));
-                    } else if(getMagnitude(testBodyPositionX - (currentBody.getPositionX() - currentBody.getRadiusX()), testBodyPositionY - (currentBody.getPositionY() - currentBody.getRadiusY())) < testBodyRadiusX) {
+                    } else if(getMagnitude(testBodyPositionX - (positionsX.get(i) - currentBody.getRadiusX()), testBodyPositionY - (positionsY.get(i) - currentBody.getRadiusY())) < testBodyRadiusX) {
                         // Bottom-Left corner
                         unitNormal = new Vector2(-root2over2, -root2over2);
                         resolveCollisionTest2(testBody, currentBody, unitNormal, new Vector2(-unitNormal.x * testBodyRadiusX, -unitNormal.y * testBodyRadiusX));
-                    } else if(getMagnitude(testBodyPositionX - (currentBody.getPositionX() + currentBody.getRadiusX()), testBodyPositionY - (currentBody.getPositionY() - currentBody.getRadiusY())) < testBodyRadiusX) {
+                    } else if(getMagnitude(testBodyPositionX - (positionsX.get(i) + currentBody.getRadiusX()), testBodyPositionY - (positionsY.get(i) - currentBody.getRadiusY())) < testBodyRadiusX) {
                         // Top-Left corner
                         unitNormal = new Vector2(-root2over2, root2over2);
                         resolveCollisionTest2(testBody, currentBody, unitNormal, new Vector2(-unitNormal.x * testBodyRadiusX, -unitNormal.y * testBodyRadiusX));
-                    } else if(testBodyPositionX - currentBody.getPositionX() < testBodyRadiusX + currentBody.getRadiusX()
-                            && testBodyPositionX - currentBody.getPositionX() > -(testBodyRadiusX + currentBody.getRadiusX())
-                            && testBodyPositionY - currentBody.getPositionY() < currentBody.getRadiusY()
-                            && testBodyPositionY - currentBody.getPositionY() > -currentBody.getRadiusY()) {
+                    } else if(testBodyPositionX - positionsX.get(i) < testBodyRadiusX + currentBody.getRadiusX()
+                            && testBodyPositionX - positionsX.get(i) > -(testBodyRadiusX + currentBody.getRadiusX())
+                            && testBodyPositionY - positionsY.get(i) < currentBody.getRadiusY()
+                            && testBodyPositionY - positionsY.get(i) > -currentBody.getRadiusY()) {
                         unitNormal = new Vector2(-testBody.getVelocity().x / Math.abs(testBody.getVelocity().x), 0);
                         resolveCollisionTest2(testBody, currentBody, unitNormal, new Vector2(-unitNormal.x * testBodyRadiusX, -unitNormal.y * testBodyRadiusX));
-                    } else if(testBodyPositionX - currentBody.getPositionX() < currentBody.getRadiusX()
-                            && testBodyPositionX - currentBody.getPositionX() > -(currentBody.getRadiusX())
-                            && testBodyPositionY - currentBody.getPositionY() < (testBodyRadiusY + currentBody.getRadiusY())
-                            && testBodyPositionY - currentBody.getPositionY() > -(testBodyRadiusY + currentBody.getRadiusY())) {
+                    } else if(testBodyPositionX - positionsX.get(i) < currentBody.getRadiusX()
+                            && testBodyPositionX - positionsX.get(i) > -(currentBody.getRadiusX())
+                            && testBodyPositionY - positionsY.get(i) < (testBodyRadiusY + currentBody.getRadiusY())
+                            && testBodyPositionY - positionsY.get(i) > -(testBodyRadiusY + currentBody.getRadiusY())) {
                         unitNormal = new Vector2(0, -testBody.getVelocity().y / Math.abs(testBody.getVelocity().y));
                         resolveCollisionTest2(testBody, currentBody, unitNormal, new Vector2(-unitNormal.x * testBodyRadiusX, -unitNormal.y * testBodyRadiusX));
                     }
@@ -172,13 +170,19 @@ public class BodyList {
     }
 
     private void resolveCollisionTest2(Body testBody, Body collidedBody, Vector2 unitNormalOfAppliedForce, Vector2 pointOfForceApplication) {
-        System.out.println("Collision Detected");
-
-        float magForce = Math.abs(2 * dotProduct(unitNormalOfAppliedForce, testBody.getVelocity()) * 1 / (1/60f)); // The 1 should be replaced with mass
+        float magForce = Math.abs(2 * dotProduct(unitNormalOfAppliedForce, testBody.getVelocity()) * testBody.getBodyGroup().getMass() / (1/60f)); // The 1 should be replaced with mass
         Vector2 forceVector = new Vector2(magForce * unitNormalOfAppliedForce.x, magForce * unitNormalOfAppliedForce.y);
 
         testBody.giveForce(forceVector, pointOfForceApplication);
 
         ContactListener.contact(testBody, collidedBody);
+    }
+
+    public static void setPPM(float PPM) {
+        BodyList.PPM = PPM;
+    }
+
+    public static float getPPM() {
+        return PPM;
     }
 }

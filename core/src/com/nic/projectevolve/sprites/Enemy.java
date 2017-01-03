@@ -1,10 +1,10 @@
 package com.nic.projectevolve.sprites;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.nic.projectevolve.ProjectEvolve;
+import com.nic.projectevolve.physics.Body;
 import com.nic.projectevolve.physics.BodyGroup;
 import com.nic.projectevolve.physics.PhysicsMath;
 import com.nic.projectevolve.screens.PlayScreen;
@@ -14,49 +14,59 @@ import com.nic.projectevolve.screens.PlayScreen;
  *
  * This is the main class for enemies. Eventually these will be able to move on their own and attack.
  */
-public class Enemy extends Sprite {
+public class Enemy {
+    private Vector2 position;
+    private int energy;
     private boolean setToDestroy;
     private boolean destroyed;
 
-
-    private Vector2 position;
-
+    // Module that will make up the enemy
     private Module[] modules;
     private int numModules;
+
+    // Physics bodyGroup
     private BodyGroup bodyGroup;
 
-    private int energy;
-
+    // Needed for AI to decide if the player is close enough to chase / run away
     private Player player;
+
+    // State variable used in the AI algorithm
     private Vector2 lastIdleForce;
 
     public Enemy(Player character, Vector2 position) {
         player = character;
         this.position = position;
 
+        // Initialize modules array
         modules = new Module[ProjectEvolve.NUM_MODULES];
         numModules = 0;
-        bodyGroup = new BodyGroup(position);
-        setBounds(0, 0, 16 / ProjectEvolve.PPM, 16 / ProjectEvolve.PPM);
+
+        // Initialize physics bodyGroup
+        bodyGroup = new BodyGroup(position, PlayScreen.bodyList, ProjectEvolve.MAX_VELOCITY, ProjectEvolve.MAX_ANGULAR_VELOCITY);
+
+        // Initialize general enemy variables
         setToDestroy =false;
         destroyed = false;
-
         energy = 100;
-
         lastIdleForce = new Vector2(1, 0);
 
+        // Randomly choose an integer from zero to NUM_ENEMY_DESIGNS - 1 to choose an enemy design from
         int rand = (int) Math.floor(Math.random() * ProjectEvolve.NUM_ENEMY_DESIGNS);
-        System.out.println(rand);
 
-        int i;
-        for(i = 0; i < ProjectEvolve.NUM_MODULES; i++) {
+        // Create modules based on the random number found
+        for(int i = 0; i < ProjectEvolve.NUM_MODULES; i++) {
+            // Only create module if the index is not invalid
             if(ProjectEvolve.ENEMY_MODULE_DESIGNS[rand][i] != -1) {
-                // TODO will this cause memory issues? Can't dispose textures if I don't have a reference to it
+                // Create module and body and give the body to the module
                 modules[numModules] = new Module(new Texture(ProjectEvolve.MODULE_TEXTURE_NAMES[ProjectEvolve.ENEMY_MODULE_DESIGNS[rand][i]]), new Vector2(position.x + ProjectEvolve.MODULE_LOCATIONS[i][0], position.y + ProjectEvolve.MODULE_LOCATIONS[i][1]));
-                com.nic.projectevolve.physics.Body newBody = new com.nic.projectevolve.physics.Body(bodyGroup, modules[numModules].getPosition(), 16 / ProjectEvolve.PPM, 16 / ProjectEvolve.PPM, true, i);
+                Body newBody = new Body(bodyGroup, modules[numModules].getPosition(), 16 / ProjectEvolve.PPM, 16 / ProjectEvolve.PPM, true);
                 modules[numModules].setBody(newBody);
+
+                // Set collision information
                 newBody.setCollisionIdentity(ProjectEvolve.ENEMY_BIT);
                 newBody.setCollisionMask((short) (ProjectEvolve.PLAYER_BIT | ProjectEvolve.EDGE_BIT | ProjectEvolve.ENEMY_BIT));
+
+                // Give objects the rest of the references they need
                 newBody.setUserData(this);
                 bodyGroup.addBody(newBody);
                 numModules++;
@@ -65,14 +75,19 @@ public class Enemy extends Sprite {
     }
 
     public void update(float dt) {
+        // Calculate the AI
         AI(dt);
+
+        // Update the bodyGroup and then grab the position from the bodyGroup
         bodyGroup.update(dt);
         position = bodyGroup.getPosition();
 
+        // Update all the modules
         for(int i = 0; i < numModules; i++) {
             modules[i].update();
         }
 
+        // Remove all bodies possessed by the enemy if the enemy is destroyed
         if (setToDestroy && !destroyed) {
             destroyed = true;
             for(int i = 0; i < numModules; i++) {
@@ -82,6 +97,7 @@ public class Enemy extends Sprite {
     }
 
     public void render(SpriteBatch batch) {
+        // Render all modules if the enemy is not destroyed
         if (!destroyed) {
             for(int i = 0; i < numModules; i++) {
                 modules[i].draw(batch);
@@ -91,11 +107,15 @@ public class Enemy extends Sprite {
 
     private void AI(float dt) {
         float forceScaleFactor = 150;
+
+        // If the player is within 5 tiles in both the x and y directions then chase the player
         if(Math.abs(player.getPosition().x - position.x) < 5 * 32 / ProjectEvolve.PPM && Math.abs(player.getPosition().y - position.y) < 5 * 32 / ProjectEvolve.PPM) {
             Vector2 direction = new Vector2(player.getPosition().x - position.x, player.getPosition().y - position.y);
             Vector2 unitDirection = new Vector2(direction.x / direction.len(), direction.y / direction.len());
             bodyGroup.applyForce(unitDirection.scl(dt).scl(forceScaleFactor), new Vector2(0, 0), modules[0].getBody());
-        } else {
+        }
+        // Otherwise, apply a random force close in direction to the last force (for seemingly random movement)
+        else {
             lastIdleForce.x = (float) (Math.random() * 2 - 1);
             lastIdleForce.y = (float) (Math.random() * 2 - 1);
             PhysicsMath.clampVectorBelow(lastIdleForce, 1, true, true, true, true);
@@ -114,5 +134,11 @@ public class Enemy extends Sprite {
 
     public boolean isDead() {
         return setToDestroy;
+    }
+
+    public void dispose() {
+        for(int i = 0; i < numModules; i++) {
+            modules[i].dispose();
+        }
     }
 }

@@ -1,7 +1,6 @@
 package com.nic.projectevolve.physics;
 
 import com.badlogic.gdx.math.Vector2;
-import com.nic.projectevolve.ProjectEvolve;
 import java.util.ArrayList;
 
 /**
@@ -15,6 +14,8 @@ import java.util.ArrayList;
 public class BodyGroup {
     private ArrayList<Body> bodies;
     private int numBodies;
+
+    private BodyList bodyList;
 
     private Vector2 cg; // position of cg relative to center of module zero
     private Vector2 relativeCG;
@@ -38,10 +39,12 @@ public class BodyGroup {
 //    private Vector2 lastPosition;
 //    private float lastRotation;
 
-    public BodyGroup(Vector2 position) {
+    public BodyGroup(Vector2 position, BodyList bodyList, float maxVelocity, float maxAngularVelocity) {
         // Initialize the ArrayList of bodies so it can be added to later
         bodies = new ArrayList<Body>();
         numBodies = 0;
+
+        this.bodyList = bodyList;
 
         // Initialize movement characteristics of the body group to zero
         rotation = 0;
@@ -56,44 +59,53 @@ public class BodyGroup {
         relativeCG = new Vector2(0, 0);
         this.position = position;
 
-        // TODO these probably should be specified from game code and passed in instead of being hard coded
         // Initialize physical characteristics
-        mass = 1; // This should be calculated as bodies are added
-        momentOfInertia = 1; // This should be calculated as bodies are added
-        maxVelocity = 2;
-        maxAngularVelocity = 90;
+        mass = 0;
+        momentOfInertia = 1;
+        this.maxVelocity = maxVelocity;
+        this.maxAngularVelocity = maxAngularVelocity;
     }
 
     public void addBody(Body body) {
         bodies.add(body);
         numBodies++;
+
+        // Update mass
+        mass += body.getMass();
+
         // Calculate new cg as average of all modules' locations relative to position
-        // TODO pass in locations instead of getting them from game code directly
         Vector2 cgRunningTotal = new Vector2(0, 0);
         for(int i = 0; i < numBodies; i++) {
-            cgRunningTotal.x += ProjectEvolve.MODULE_LOCATIONS[bodies.get(i).getIndex()][0] / ProjectEvolve.PPM;
-            cgRunningTotal.y += ProjectEvolve.MODULE_LOCATIONS[bodies.get(i).getIndex()][1] / ProjectEvolve.PPM;
-            System.out.println(cgRunningTotal.y);
+            cgRunningTotal.x += bodies.get(i).getOffset().x;
+            cgRunningTotal.y += bodies.get(i).getOffset().y;
         }
         relativeCG.x = cgRunningTotal.x / numBodies;
         relativeCG.y = cgRunningTotal.y / numBodies;
+
+        // Update moment of inertia
+        momentOfInertia = 0;
+        for(int i = 0; i < numBodies; i++) {
+            momentOfInertia += bodies.get(i).getMass() * (bodies.get(i).getOffset().len() - relativeCG.len()) / BodyList.getPPM();
+        }
+        // Make sure the moment of inertia is not zero since we divide by it
+        if(momentOfInertia == 0) {
+            momentOfInertia = 1;
+        }
     }
 
     public void update(float dt) {
-//        lastPosition = position;
-//        lastRotation = rotation;
         // Store dt in case need to unUpdate when applying forces
         lastDt = dt;
 
         // Update velocities based on forces from last collisions / inputs
         velocity = new Vector2(totalLongitudinalForce.x / 60f / mass + velocity.x, totalLongitudinalForce.y / 60f / mass + velocity.y);
         // Clamp velocities within maxVelocity
-        PhysicsMath.clampVectorBelow(velocity, maxVelocity, true, true, true, true);
+         velocity = PhysicsMath.clampVectorBelow(velocity, maxVelocity, true, true, true, true);
 
         // Update angular velocity based on forces from last collisions / inputs
         angularVelocity += totalTorque * 1.5f / momentOfInertia;
         // Clamp angular velocity within maxAngularVelocity
-        PhysicsMath.clampBelow(angularVelocity, maxAngularVelocity, true, true);
+        angularVelocity = PhysicsMath.clampBelow(angularVelocity, maxAngularVelocity, true, true);
 
         // Reset forces and torques after applying them
         totalLongitudinalForce = new Vector2(0, 0);
@@ -111,15 +123,13 @@ public class BodyGroup {
 
         // Update all modules
         for (int i = 0; i < numBodies; i++) {
-            int index = bodies.get(i).getIndex();
-            // TODO get locations from bodies instead of game code
-            bodies.get(i).update(new Vector2(position.x + (ProjectEvolve.MODULE_LOCATIONS[index][0] * xOffset - ProjectEvolve.MODULE_LOCATIONS[index][1] * yOffset) / ProjectEvolve.PPM, position.y + (ProjectEvolve.MODULE_LOCATIONS[index][1] * xOffset + ProjectEvolve.MODULE_LOCATIONS[index][0] * yOffset) / ProjectEvolve.PPM), velocity, rotation);
+            bodies.get(i).update(new Vector2(position.x + (bodies.get(i).getOffset().x * xOffset - bodies.get(i).getOffset().y * yOffset) / BodyList.getPPM(), position.y + (bodies.get(i).getOffset().y * xOffset + bodies.get(i).getOffset().x * yOffset) / BodyList.getPPM()), velocity, rotation);
         }
 
         // Decelerate the body group
         angularVelocity -= angularVelocity * dt;
-        velocity.x -= 1 * velocity.x * dt;
-        velocity.y -= 1 * velocity.y * dt;
+        velocity.x -= .1 * velocity.x * dt;
+        velocity.y -= .1 * velocity.y * dt;
     }
 
     public void applyForce(Vector2 force, Vector2 pointOfApplication, Body bodyOfApplication) {
@@ -158,11 +168,19 @@ public class BodyGroup {
         yOffset = (float) Math.sin(Math.toRadians(rotation));
 
         // Update cg based on xOffset and yOffset
-        cg.x = relativeCG.x * xOffset - relativeCG.y * yOffset;
-        cg.y = relativeCG.y * xOffset + relativeCG.x * yOffset;
+        cg.x = (relativeCG.x * xOffset - relativeCG.y * yOffset) / BodyList.getPPM();
+        cg.y = (relativeCG.y * xOffset + relativeCG.x * yOffset) / BodyList.getPPM();
     }
 
     public Vector2 getPosition() {
         return position;
+    }
+
+    public BodyList getBodyList() {
+        return bodyList;
+    }
+
+    public float getMass() {
+        return mass;
     }
 }

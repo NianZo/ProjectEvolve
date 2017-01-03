@@ -14,6 +14,9 @@ public class ProjectEvolve extends Game {
 
 	public static final int NUM_MODULES = 19;
 
+	public static final float MAX_VELOCITY = 2;
+	public static final float MAX_ANGULAR_VELOCITY = 90;
+
 	public static final int[][] MODULE_LOCATIONS = {{0,0},{0,32},{28,16},{28,-16},{0,-32},{-28,-16},{-28,16},{0,64},{28,48},{56,32},{56,0},{56,-32},{28,-48},{0,-64},{-28,-48},{-56,-32},{-56,0},{-56,32},{-28,48}};
 
 	public static final int[][] ENEMY_MODULE_DESIGNS = {
@@ -28,12 +31,13 @@ public class ProjectEvolve extends Game {
 
 	public SpriteBatch batch;
 
+    public static final short NOTHING_BIT = 0;
 	public static final short EDGE_BIT = 1;
 	public static final short PLAYER_BIT = 2;
 	public static final short ENEMY_BIT = 4;
 	public static final short ATTACKING_BIT = 8;
 
-	public static final String[] MODULE_TEXTURE_NAMES = {"normalmodule.png","attackingmodule.png"};
+	public static final String[] MODULE_TEXTURE_NAMES = {"normal_module.png", "attacking_module.png"};
 
 	@Override
 	public void create () {

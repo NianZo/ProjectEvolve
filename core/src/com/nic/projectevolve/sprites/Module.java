@@ -21,9 +21,12 @@ public class Module extends Sprite {
 
     private Vector2 position;
 
+    private Texture texture;
+
     // Constructor for a Module. Takes in a texture, position, and player
     public Module(Texture texture, Vector2 position) {
         super(texture);
+        this.texture = texture;
         this.position = position;
         setBounds(0, 0, 32 / ProjectEvolve.PPM, 32 / ProjectEvolve.PPM);
         setRegion(texture);
@@ -50,5 +53,9 @@ public class Module extends Sprite {
 
     public Vector2 getPosition() {
         return position;
+    }
+
+    public void dispose() {
+        texture.dispose();
     }
 }
