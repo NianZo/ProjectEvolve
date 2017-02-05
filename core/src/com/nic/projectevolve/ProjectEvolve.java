@@ -1,6 +1,7 @@
 package com.nic.projectevolve;
 
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.nic.projectevolve.screens.MenuScreen;
 
@@ -25,7 +26,7 @@ public class ProjectEvolve extends Game {
 	};
 	public static final int NUM_ENEMY_DESIGNS = 2;
 
-	public static final int[][] UPGRADE_COSTS = {{0,2,2,3,4},{0,5,6,7,8},{0,9,10,11,12}};
+	public static final int[][] UPGRADE_COSTS = {{0,1,2,3,4},{0,5,6,7,8},{0,9,10,11,12}};
 
 	public static GameState state;
 
@@ -43,9 +44,15 @@ public class ProjectEvolve extends Game {
 	public static final String[] MODULE_TEXTURE_NAMES = {"normal_module.png", "attacking_module.png", "midgreenmodule.png"};
 
 	public static final String[] UPGRADE_DESCRIPTIONS = {
-			"Speed Module\nCost: ",
-			"Attack Module\nCost: ",
-			"Defense Module\nCost: "
+			"Upgrade\nSpeed Module\nCost: ",
+			"Upgrade\nAttack Module\nCost: ",
+			"Upgrade\nDefense Module\nCost: "
+	};
+
+	public static final String[] SPAWNER_DESCRIPTIONS = {
+			"Speed Module\nLevel: ",
+			"Attack Module",
+			"Defense Module"
 	};
 
 	@Override
@@ -53,6 +60,9 @@ public class ProjectEvolve extends Game {
 		GameState.geneticMaterial = 0;
 		batch = new SpriteBatch();
 		state = new GameState();
+		if(Gdx.files.local("game_state.txt").length() != 0) {
+			state.readStateFromFile();
+		}
 		setScreen(new MenuScreen(this));
 	}
 

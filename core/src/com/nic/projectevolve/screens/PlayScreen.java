@@ -208,5 +208,6 @@ public class PlayScreen implements Screen{
         for(int i = 0; i < enemies.size(); i++) {
             enemies.get(i).dispose();
         }
+        ProjectEvolve.state.saveStateToFile();
     }
 }

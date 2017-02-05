@@ -1,9 +1,16 @@
 package com.nic.projectevolve.uiComponents;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.nic.projectevolve.GameState;
 import com.nic.projectevolve.ProjectEvolve;
 
 /**
@@ -23,29 +30,69 @@ public class ModuleSpawner {
 
     private short moduleType;
 
-    public ModuleSpawner(int type, Vector2 position) {
+    private Stage stage;
+    private Skin skin;
+    private TextButton description;
+    private Vector2 size;
+
+    private int type;
+
+    public ModuleSpawner(int type, Vector2 position, Vector2 size) {
         moduleType = (short) type;
         Texture texture = new Texture(ProjectEvolve.MODULE_TEXTURE_NAMES[type]);
         sprite = new Sprite(texture);
-        sprite.setBounds(0, 0, 50 / ProjectEvolve.PPM, 50 / ProjectEvolve.PPM);
-        sprite.setPosition(position.x, position.y);
+        sprite.setBounds(0, 0, size.y / 2 / ProjectEvolve.PPM, size.y / 2 / ProjectEvolve.PPM);
+
+        this.type = type;
 
         transientSprite = new Sprite(texture);
         transientSprite.setBounds(0, 0, 50 / ProjectEvolve.PPM, 50 / ProjectEvolve.PPM);
         transientSprite.setAlpha(0.5f);
 
         this.position = position;
+        this.size = size;
         transientPosition = position;
 
         pickedUp = false;
+
+        createTextField();
+        description = new TextButton(ProjectEvolve.SPAWNER_DESCRIPTIONS[type]+GameState.moduleLevels[type], skin);
+        description.setPosition(position.x, position.y);
+        description.setSize(size.x - size.y, size.y);
+        stage.addActor(description);
+        sprite.setPosition((position.x + size.y / 2) / ProjectEvolve.PPM - sprite.getHeight() / 2 + description.getWidth() / ProjectEvolve.PPM, (position.y + size.y / 2) / ProjectEvolve.PPM - sprite.getHeight() / 2);
+    }
+
+    private void createTextField() {
+        stage = new Stage();
+
+        // Setup default font for text buttons
+        BitmapFont font = new BitmapFont();
+        skin = new Skin();
+        skin.add("default", font);
+
+        // Create texture for background of buttons
+        Pixmap pixmap = new Pixmap(ProjectEvolve.V_WIDTH / 4, ProjectEvolve.V_HEIGHT / 10, Pixmap.Format.RGBA8888);
+        pixmap.setColor(Color.WHITE);
+        pixmap.fill();
+        skin.add("background", new Texture(pixmap));
+
+        // Create button style
+        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.up = skin.newDrawable("background", Color.DARK_GRAY);
+        textButtonStyle.down = skin.newDrawable("background", Color.DARK_GRAY);
+        textButtonStyle.checked = skin.newDrawable("background", Color.LIGHT_GRAY);
+        textButtonStyle.over = skin.newDrawable("background", Color.LIGHT_GRAY);
+        textButtonStyle.font = skin.getFont("default");
+        skin.add("default", textButtonStyle);
     }
 
     public void tryPickUp(Vector2 touchPosition) {
         if(!pickedUp) {
-            if (touchPosition.x > position.x &&
-                    touchPosition.x < position.x + 48 / ProjectEvolve.PPM &&
-                    touchPosition.y > position.y &&
-                    touchPosition.y < position.y + 48 / ProjectEvolve.PPM) {
+            if (touchPosition.x > position.x / ProjectEvolve.PPM &&
+                    touchPosition.x < (position.x + size.x) / ProjectEvolve.PPM &&
+                    touchPosition.y > position.y / ProjectEvolve.PPM &&
+                    touchPosition.y < (position.y + size.y) / ProjectEvolve.PPM) {
                 pickedUp = true;
             }
         }
@@ -66,11 +113,30 @@ public class ModuleSpawner {
         pickedUp = condition;
     }
 
+    public void update(Vector2 touchPosition) {
+        sprite.setAlpha(.75f);
+        if (touchPosition.x > position.x / ProjectEvolve.PPM &&
+                touchPosition.x < (position.x + size.x) / ProjectEvolve.PPM &&
+                touchPosition.y > position.y / ProjectEvolve.PPM &&
+                touchPosition.y < (position.y + size.y) / ProjectEvolve.PPM) {
+
+            // Highlight the thing
+            //System.out.print(type);
+            //System.out.println(" highlighted");
+            sprite.setAlpha(1.0f);
+        }
+        description.setText(ProjectEvolve.SPAWNER_DESCRIPTIONS[type]+GameState.moduleLevels[type]);
+    }
+
     public void render(SpriteBatch batch) {
         sprite.draw(batch);
         if (pickedUp) {
             transientSprite.draw(batch);
         }
+    }
+
+    public void drawStage() {
+        stage.draw();
     }
 
     public int getType() {

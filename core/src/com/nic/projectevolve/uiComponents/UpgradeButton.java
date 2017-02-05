@@ -40,17 +40,14 @@ public class UpgradeButton {
         this.type = type;
         iconTexture = new Texture(ProjectEvolve.MODULE_TEXTURE_NAMES[type]);
         icon = new Sprite(iconTexture);
-        //icon.setBounds(0, 0, 50 / ProjectEvolve.PPM, 50 / ProjectEvolve.PPM);
         icon.setBounds(0, 0, size.y / 2 / ProjectEvolve.PPM, size.y / 2 / ProjectEvolve.PPM);
-        //icon.setSize(size.y / 2 / ProjectEvolve.PPM, size.y / 2 / ProjectEvolve.PPM);
         icon.setPosition((position.x + size.y / 2) / ProjectEvolve.PPM - icon.getHeight() / 2, (position.y + size.y / 2) / ProjectEvolve.PPM - icon.getHeight() / 2);
-        //icon.setPosition(0 / ProjectEvolve.PPM, 300 / ProjectEvolve.PPM);
 
         this.position = position;
         this.size = size;
 
         createTextField();
-        description = new TextButton(ProjectEvolve.UPGRADE_DESCRIPTIONS[type], skin);
+        description = new TextButton(ProjectEvolve.UPGRADE_DESCRIPTIONS[type]+ProjectEvolve.UPGRADE_COSTS[type][GameState.moduleLevels[type]], skin);
         description.setPosition(position.x + size.y, position.y);
         description.setSize(size.x - size.y, size.y);
         stage.addActor(description);
@@ -102,15 +99,18 @@ public class UpgradeButton {
     }
 
     public void update(Vector2 touchPosition) {
+        icon.setAlpha(.75f);
         if (touchPosition.x > position.x / ProjectEvolve.PPM &&
                 touchPosition.x < (position.x + size.x) / ProjectEvolve.PPM &&
                 touchPosition.y > position.y / ProjectEvolve.PPM &&
                 touchPosition.y < (position.y + size.y) / ProjectEvolve.PPM) {
 
             // Highlight the thing
-            System.out.print(type);
-            System.out.println(" highlighted");
+            //System.out.print(type);
+            //System.out.println(" highlighted");
+            icon.setAlpha(1.0f);
         }
+
         active = GameState.geneticMaterial >= ProjectEvolve.UPGRADE_COSTS[type][GameState.moduleLevels[type]];
     }
 }

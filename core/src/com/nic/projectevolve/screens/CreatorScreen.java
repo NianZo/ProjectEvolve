@@ -51,6 +51,8 @@ public class CreatorScreen implements Screen{
     private UpgradeButton[] upgradeButtons;
     //private int numUpgradeButtons;
 
+    private TextButton resourceButton;
+
     public CreatorScreen(ProjectEvolve game) {
         //Gdx.input.setInputProcessor(stage);
         modules = new DraggableImage[19];
@@ -116,7 +118,7 @@ public class CreatorScreen implements Screen{
             }
         });
 
-        creatorMatrix = new CreatorMatrix("hexagongrid.png", new Vector2(ProjectEvolve.V_WIDTH / 2 / ProjectEvolve.PPM, ProjectEvolve.V_HEIGHT / 2 / ProjectEvolve.PPM));
+        creatorMatrix = new CreatorMatrix("hexagon_grid.png", new Vector2(ProjectEvolve.V_WIDTH / 2 / ProjectEvolve.PPM, ProjectEvolve.V_HEIGHT / 2 / ProjectEvolve.PPM));
 
         // Load module locations from gameState
         for(int i = 0; i < ProjectEvolve.NUM_MODULES; i++) {
@@ -127,13 +129,18 @@ public class CreatorScreen implements Screen{
             }
         }
 
-        spawners[0] = new ModuleSpawner(0, new Vector2(0, 0));
-        spawners[1] = new ModuleSpawner(1, new Vector2(0, 50 / ProjectEvolve.PPM));
-        spawners[2] = new ModuleSpawner(2, new Vector2(0, 100 / ProjectEvolve.PPM));
-        moduleDeleter = new ModuleDeleter("delete.png", new Vector2(0, 150 / ProjectEvolve.PPM));
-        upgradeButtons[0] = new UpgradeButton(0, new Vector2(Gdx.graphics.getWidth() * 2 / 3, Gdx.graphics.getHeight() * 3 / 4), new Vector2(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 4));
-        upgradeButtons[1] = new UpgradeButton(1, new Vector2(Gdx.graphics.getWidth() * 2 / 3, Gdx.graphics.getHeight() * 2 / 4), new Vector2(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 4));
-        upgradeButtons[2] = new UpgradeButton(2, new Vector2(Gdx.graphics.getWidth() * 2 / 3, Gdx.graphics.getHeight() * 1 / 4), new Vector2(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 4));
+        resourceButton = new TextButton("Genetic Material: "+GameState.geneticMaterial, skin);
+        resourceButton.setSize(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 10);
+        resourceButton.setPosition(Gdx.graphics.getWidth() / 2 - resourceButton.getWidth() / 2, Gdx.graphics.getHeight() - resourceButton.getHeight());
+        stage.addActor(resourceButton);
+
+        spawners[0] = new ModuleSpawner(0, new Vector2(0, Gdx.graphics.getHeight() * 3 / 4), new Vector2(3 * Gdx.graphics.getWidth() / 11, Gdx.graphics.getHeight() / 4));
+        spawners[1] = new ModuleSpawner(1, new Vector2(0, Gdx.graphics.getHeight() * 2 / 4), new Vector2(3 * Gdx.graphics.getWidth() / 11, Gdx.graphics.getHeight() / 4));
+        spawners[2] = new ModuleSpawner(2, new Vector2(0, Gdx.graphics.getHeight() / 4), new Vector2(3 * Gdx.graphics.getWidth() / 11, Gdx.graphics.getHeight() / 4));
+        moduleDeleter = new ModuleDeleter("delete.png", new Vector2(0, 0), new Vector2(3 * Gdx.graphics.getWidth() / 11, Gdx.graphics.getHeight() / 4));
+        upgradeButtons[0] = new UpgradeButton(0, new Vector2(Gdx.graphics.getWidth() * 8 / 11, Gdx.graphics.getHeight() * 3 / 4), new Vector2(3 * Gdx.graphics.getWidth() / 11, Gdx.graphics.getHeight() / 4));
+        upgradeButtons[1] = new UpgradeButton(1, new Vector2(Gdx.graphics.getWidth() * 8 / 11, Gdx.graphics.getHeight() * 2 / 4), new Vector2(3 * Gdx.graphics.getWidth() / 11, Gdx.graphics.getHeight() / 4));
+        upgradeButtons[2] = new UpgradeButton(2, new Vector2(Gdx.graphics.getWidth() * 8 / 11, Gdx.graphics.getHeight() / 4), new Vector2(3 * Gdx.graphics.getWidth() / 11, Gdx.graphics.getHeight() / 4));
     }
 
     @Override
@@ -149,6 +156,9 @@ public class CreatorScreen implements Screen{
         upgradeButtons[0].update(touchLocation);
         upgradeButtons[1].update(touchLocation);
         upgradeButtons[2].update(touchLocation);
+        spawners[0].update(touchLocation);
+        spawners[1].update(touchLocation);
+        spawners[2].update(touchLocation);
 
         // Handle if the screen was just touched (mostly pick up operations)
         if(Gdx.input.justTouched()) {
@@ -246,6 +256,7 @@ public class CreatorScreen implements Screen{
 
     private void update() {
         handleInput();
+        resourceButton.setText("Genetic Material: "+GameState.geneticMaterial);
     }
 
     @Override
@@ -259,6 +270,10 @@ public class CreatorScreen implements Screen{
         upgradeButtons[0].drawStage();
         upgradeButtons[1].drawStage();
         upgradeButtons[2].drawStage();
+        spawners[0].drawStage();
+        spawners[1].drawStage();
+        spawners[2].drawStage();
+        moduleDeleter.drawStage();
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
 
@@ -312,6 +327,7 @@ public class CreatorScreen implements Screen{
     public void dispose() {
         stage.dispose();
         skin.dispose();
+        ProjectEvolve.state.saveStateToFile();
     }
 
     // Handles everything needed to delete a module that is no longer needed
