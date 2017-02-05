@@ -9,6 +9,10 @@ package com.nic.projectevolve;
 public class GameState {
     public static int geneticMaterial;
     private short[] moduleLocations;
+    //public static int playerSpeedLevel = 1;
+    //public static int playerDefenseLevel = 1;
+    //public static int playerAttackLevel = 1;
+    public static int[] moduleLevels = {1,1,1};
 
     public GameState() {
         moduleLocations = new short[ProjectEvolve.NUM_MODULES];

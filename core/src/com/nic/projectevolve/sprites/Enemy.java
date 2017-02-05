@@ -3,6 +3,7 @@ package com.nic.projectevolve.sprites;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.nic.projectevolve.GameState;
 import com.nic.projectevolve.ProjectEvolve;
 import com.nic.projectevolve.physics.Body;
 import com.nic.projectevolve.physics.BodyGroup;
@@ -33,6 +34,9 @@ public class Enemy {
     // State variable used in the AI algorithm
     private Vector2 lastIdleForce;
 
+    private int attackLevel = 1;
+    private int defenseLevel = 1;
+
     public Enemy(Player character, Vector2 position) {
         player = character;
         this.position = position;
@@ -54,29 +58,40 @@ public class Enemy {
         int rand = (int) Math.floor(Math.random() * ProjectEvolve.NUM_ENEMY_DESIGNS);
 
         // Create modules based on the random number found
+        float maxSpeed = 1;
         for(int i = 0; i < ProjectEvolve.NUM_MODULES; i++) {
             // Only create module if the index is not invalid
             if(ProjectEvolve.ENEMY_MODULE_DESIGNS[rand][i] != -1) {
                 // Create module and body and give the body to the module
+                int type = ProjectEvolve.ENEMY_MODULE_DESIGNS[rand][i];
                 modules[numModules] = new Module(new Texture(ProjectEvolve.MODULE_TEXTURE_NAMES[ProjectEvolve.ENEMY_MODULE_DESIGNS[rand][i]]), new Vector2(position.x + ProjectEvolve.MODULE_LOCATIONS[i][0], position.y + ProjectEvolve.MODULE_LOCATIONS[i][1]));
                 Body newBody = new Body(bodyGroup, modules[numModules].getPosition(), 16 / ProjectEvolve.PPM, 16 / ProjectEvolve.PPM, true);
                 modules[numModules].setBody(newBody);
 
                 // Set collision information
-                newBody.setCollisionIdentity(ProjectEvolve.ENEMY_BIT);
+                short collisionIdentity = ProjectEvolve.ENEMY_BIT;
+                collisionIdentity = (short) ((type == 1) ? (collisionIdentity | ProjectEvolve.ATTACKING_BIT) : collisionIdentity);
+                collisionIdentity = (short) ((type == 2) ? (collisionIdentity | ProjectEvolve.DEFENDING_BIT) : collisionIdentity);
+                newBody.setCollisionIdentity(collisionIdentity);
+
                 newBody.setCollisionMask((short) (ProjectEvolve.PLAYER_BIT | ProjectEvolve.EDGE_BIT | ProjectEvolve.ENEMY_BIT));
 
                 // Give objects the rest of the references they need
                 newBody.setUserData(this);
                 bodyGroup.addBody(newBody);
                 numModules++;
+                if(ProjectEvolve.state.getModule(i) == 0) {
+                    maxSpeed += .1f * .2f * GameState.moduleLevels[0];
+                    // TODO randomly generate module levels too
+                }
             }
+            bodyGroup.setMaxVelocity(maxSpeed);
         }
     }
 
     public void update(float dt) {
         // Calculate the AI
-        AI(dt);
+        //AI(dt);
 
         // Update the bodyGroup and then grab the position from the bodyGroup
         bodyGroup.update(dt);
@@ -134,6 +149,14 @@ public class Enemy {
 
     public boolean isDead() {
         return setToDestroy;
+    }
+
+    public int getAttackLevel() {
+        return attackLevel;
+    }
+
+    public int getDefenseLevel() {
+        return defenseLevel;
     }
 
     public void dispose() {

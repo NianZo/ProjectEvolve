@@ -183,4 +183,8 @@ public class BodyGroup {
     public float getMass() {
         return mass;
     }
+
+    public void setMaxVelocity(float maxSpeed) {
+        maxVelocity = maxSpeed;
+    }
 }

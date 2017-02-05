@@ -16,11 +16,13 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.nic.projectevolve.GameState;
 import com.nic.projectevolve.ProjectEvolve;
 import com.nic.projectevolve.uiComponents.CreatorMatrix;
 import com.nic.projectevolve.uiComponents.DraggableImage;
 import com.nic.projectevolve.uiComponents.ModuleDeleter;
 import com.nic.projectevolve.uiComponents.ModuleSpawner;
+import com.nic.projectevolve.uiComponents.UpgradeButton;
 
 /**
  * Created by nic on 9/25/16.
@@ -46,16 +48,21 @@ public class CreatorScreen implements Screen{
     private ModuleSpawner[] spawners;
     private int numSpawners;
 
+    private UpgradeButton[] upgradeButtons;
+    //private int numUpgradeButtons;
+
     public CreatorScreen(ProjectEvolve game) {
         //Gdx.input.setInputProcessor(stage);
         modules = new DraggableImage[19];
         numModules = 0;
 
-        numSpawners = 2;
+        numSpawners = 3;
         spawners = new ModuleSpawner[numSpawners];
 
-        // Set up UI (buttons, and other clickables)
-        createButtons();
+        int numUpgradeButtons = 3;
+        upgradeButtons = new UpgradeButton[numUpgradeButtons];
+
+
 
         this.game = game;
 
@@ -65,6 +72,10 @@ public class CreatorScreen implements Screen{
         gamePort = new FitViewport(ProjectEvolve.V_WIDTH / ProjectEvolve.PPM, ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM, gameCam);
 
         gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
+
+        // Set up UI (buttons, and other clickables)
+        // Moved since this needs to reference gamePort for sizing
+        createButtons();
     }
 
     private void createButtons() {
@@ -92,6 +103,7 @@ public class CreatorScreen implements Screen{
         skin.add("default", textButtonStyle);
 
         TextButton menuButton = new TextButton("Back to Menu", skin);
+        menuButton.setSize(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 4);
         menuButton.setPosition(ProjectEvolve.V_WIDTH - menuButton.getWidth(), 0);
         stage.addActor(menuButton);
 
@@ -117,7 +129,11 @@ public class CreatorScreen implements Screen{
 
         spawners[0] = new ModuleSpawner(0, new Vector2(0, 0));
         spawners[1] = new ModuleSpawner(1, new Vector2(0, 50 / ProjectEvolve.PPM));
-        moduleDeleter = new ModuleDeleter("delete.png", new Vector2(0, 100 / ProjectEvolve.PPM));
+        spawners[2] = new ModuleSpawner(2, new Vector2(0, 100 / ProjectEvolve.PPM));
+        moduleDeleter = new ModuleDeleter("delete.png", new Vector2(0, 150 / ProjectEvolve.PPM));
+        upgradeButtons[0] = new UpgradeButton(0, new Vector2(Gdx.graphics.getWidth() * 2 / 3, Gdx.graphics.getHeight() * 3 / 4), new Vector2(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 4));
+        upgradeButtons[1] = new UpgradeButton(1, new Vector2(Gdx.graphics.getWidth() * 2 / 3, Gdx.graphics.getHeight() * 2 / 4), new Vector2(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 4));
+        upgradeButtons[2] = new UpgradeButton(2, new Vector2(Gdx.graphics.getWidth() * 2 / 3, Gdx.graphics.getHeight() * 1 / 4), new Vector2(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 4));
     }
 
     @Override
@@ -128,6 +144,11 @@ public class CreatorScreen implements Screen{
     private void handleInput() {
         // Pre-calculate the touch location so it only needs to be calculated once
         Vector2 touchLocation = new Vector2(Gdx.input.getX() / ProjectEvolve.PPM, -Gdx.input.getY() / ProjectEvolve.PPM + ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM);
+
+        // Update UpgradeButtons here since they need touchLocation
+        upgradeButtons[0].update(touchLocation);
+        upgradeButtons[1].update(touchLocation);
+        upgradeButtons[2].update(touchLocation);
 
         // Handle if the screen was just touched (mostly pick up operations)
         if(Gdx.input.justTouched()) {
@@ -142,6 +163,14 @@ public class CreatorScreen implements Screen{
                     modules[i].tryPickUp(touchLocation);
                 }
             }
+
+            upgradeButtons[0].click(touchLocation);
+            upgradeButtons[1].click(touchLocation);
+            upgradeButtons[2].click(touchLocation);
+            System.out.print("Genetic Material: ");
+            System.out.println(GameState.geneticMaterial);
+            System.out.print("Module Levels: ");
+            System.out.println(GameState.moduleLevels[0]);
         }
 
         // Handle if the screen is touched (not necessarily just touched) (mostly transient move operations)
@@ -217,7 +246,6 @@ public class CreatorScreen implements Screen{
 
     private void update() {
         handleInput();
-
     }
 
     @Override
@@ -228,6 +256,9 @@ public class CreatorScreen implements Screen{
 
         stage.act();
         stage.draw();
+        upgradeButtons[0].drawStage();
+        upgradeButtons[1].drawStage();
+        upgradeButtons[2].drawStage();
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
 
@@ -240,13 +271,19 @@ public class CreatorScreen implements Screen{
         moduleDeleter.render(game.batch);
 
         // Render blue modules
-        int i;
-        for(i = 0; i < numModules; i++) {
+        //int i;
+        for(int i = 0; i < numModules; i++) {
             modules[i].render(game.batch);
         }
 
-        //dragImage1.render(game.batch);
         creatorMatrix.render(game.batch);
+
+        upgradeButtons[0].render(game.batch);
+        upgradeButtons[1].render(game.batch);
+        upgradeButtons[2].render(game.batch);
+
+        //dragImage1.render(game.batch);
+
         game.batch.end();
     }
 

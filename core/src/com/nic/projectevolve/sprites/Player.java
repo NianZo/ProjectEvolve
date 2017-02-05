@@ -3,6 +3,7 @@ package com.nic.projectevolve.sprites;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.nic.projectevolve.GameState;
 import com.nic.projectevolve.ProjectEvolve;
 import com.nic.projectevolve.physics.Body;
 import com.nic.projectevolve.physics.BodyGroup;
@@ -46,6 +47,7 @@ public class Player {
         energyTime = 0;
 
         // Create Modules for the player
+        float maxSpeed = 1;
         int i;
         for(i = 0; i < ProjectEvolve.NUM_MODULES; i++) {
             if(ProjectEvolve.state.getModule(i) != -1) {
@@ -57,7 +59,9 @@ public class Player {
                 if(ProjectEvolve.state.getModule(i) == 0) {
                     newBody.setCollisionIdentity(ProjectEvolve.PLAYER_BIT); // Blue modules
                 } else if(ProjectEvolve.state.getModule(i) == 1) {
-                    newBody.setCollisionIdentity((short) (ProjectEvolve.PLAYER_BIT | ProjectEvolve.ATTACKING_BIT));
+                    newBody.setCollisionIdentity((short) (ProjectEvolve.PLAYER_BIT | ProjectEvolve.ATTACKING_BIT)); // Red modules
+                } else if(ProjectEvolve.state.getModule(i) == 2) {
+                    newBody.setCollisionIdentity((short) (ProjectEvolve.PLAYER_BIT | ProjectEvolve.DEFENDING_BIT)); // Green modules
                 }
 
                 // Set collision mask and user data of body
@@ -70,7 +74,14 @@ public class Player {
 
                 // Let the player class know the number of modules
                 numModules++;
+                if(ProjectEvolve.state.getModule(i) == 0) {
+                    maxSpeed += .1f * .2f * GameState.moduleLevels[0];
+                }
+                if(ProjectEvolve.state.getModule(i) == 2) {
+                    energy += 5;
+                }
             }
+            bodyGroup.setMaxVelocity(maxSpeed);
         }
     }
 
@@ -79,7 +90,7 @@ public class Player {
         energyTime += dt;
 
         // After a second, reset energy time and decrement energy
-        if(energyTime > 1) {
+        if(energyTime > 1 + .2 * GameState.moduleLevels[2]) {
             energyTime = 0;
             energy--;
             // If energy is zero or below then the player is dead
@@ -114,6 +125,12 @@ public class Player {
 
     public void addEnergy(int energy) {
         // Add energy and test to see if the player is dead
+        if(energy < 0) {
+            energy += GameState.moduleLevels[2];
+            if(energy > 0) {
+                energy = 0;
+            }
+        }
         this.energy += energy;
         dead = this.energy <= 0;
     }

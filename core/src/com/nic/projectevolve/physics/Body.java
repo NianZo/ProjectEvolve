@@ -40,7 +40,7 @@ public class Body {
         this.radiusY = radiusY;
 
         // TODO initialize dynamically based on module type
-        mass = 1;
+        mass = .25f;
 
         offset = new Vector2();
         offset.x = center.x - bodyGroup.getPosition().x;
