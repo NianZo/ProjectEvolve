@@ -14,16 +14,17 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.nic.projectevolve.GameState;
 import com.nic.projectevolve.ProjectEvolve;
 import com.nic.projectevolve.uiComponents.CustomTextButton;
 
 /**
- * Created by nic on 9/25/16.
+ * Created by nic on 2/14/17.
  *
- * This class handles the main menu of the game. This will have options to go to the game, the
- * the character modifier, and any other areas including options and any micro-transaction menus.
+ * Screen to hold the level selection mechanism. Allows player to play any level they have currently
+ * unlocked. Unlocked levels are polled from the GameState class.
  */
-public class MenuScreen implements Screen {
+public class LevelSelectScreen implements Screen{
     private Skin skin;
     private Stage stage;
     private ProjectEvolve game;
@@ -32,14 +33,14 @@ public class MenuScreen implements Screen {
 
     private Vector2 inputScaleAdjuster;
 
-    private CustomTextButton playButton;
-    private CustomTextButton creatorButton;
-    private CustomTextButton infoButton;
+    private CustomTextButton[] levelButtons;
+    private CustomTextButton menuButton;
 
-    private OrthographicCamera gameCam;
     private Sprite backgroundSprite;
+    private OrthographicCamera gameCam;
 
-    public MenuScreen(ProjectEvolve game) {
+    public LevelSelectScreen(ProjectEvolve game) {
+        levelButtons = new CustomTextButton[11];
         create();
         this.game = game;
 
@@ -47,10 +48,9 @@ public class MenuScreen implements Screen {
         gameCam = new OrthographicCamera();
         gamePort = new FitViewport(ProjectEvolve.V_WIDTH / ProjectEvolve.PPM, ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM, gameCam);
 
-        //gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
         inputScaleAdjuster = new Vector2(1, 1);
 
-        backgroundSprite = new Sprite(new Texture(ProjectEvolve.BACKGROUND_TEXTURE_NAMES[1]));
+        backgroundSprite = new Sprite(new Texture(ProjectEvolve.BACKGROUND_TEXTURE_NAMES[0]));
         backgroundSprite.setPosition(-ProjectEvolve.V_WIDTH / ProjectEvolve.PPM / 2, -ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM / 2);
         backgroundSprite.setSize(ProjectEvolve.V_WIDTH / ProjectEvolve.PPM, ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM);
     }
@@ -86,18 +86,36 @@ public class MenuScreen implements Screen {
 
         skin.add("default", textButtonStyle);
 
-        playButton = new CustomTextButton("PLAY", skin);
-        playButton.setSize(new Vector2(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 5));
-        playButton.setPosition(new Vector2(Gdx.graphics.getWidth() / 2 - playButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 1 * playButton.getHeight() / 2));
+        for(int i = 0; i < 5; i++) {
+            levelButtons[i] = new CustomTextButton(ProjectEvolve.LEVEL_SELECT_NAMES[i], skin);
+            levelButtons[i].setSize(new Vector2(Gdx.graphics.getWidth() / 5, Gdx.graphics.getHeight() / 3));
+            levelButtons[i].setPosition(new Vector2(Gdx.graphics.getWidth() * i / 5, Gdx.graphics.getHeight() * 2 / 3));
+            if(GameState.unlockedLevels[i] == 0) {
+                levelButtons[i].setActive(false);
+                levelButtons[i].setColor(new Color(0.75f, 0.25f, 0.25f, 0.5f));
+            }
+        }
+        for(int i = 5; i < 10; i++) {
+            levelButtons[i] = new CustomTextButton(ProjectEvolve.LEVEL_SELECT_NAMES[i], skin);
+            levelButtons[i].setSize(new Vector2(Gdx.graphics.getWidth() / 5, Gdx.graphics.getHeight() / 3));
+            levelButtons[i].setPosition(new Vector2(Gdx.graphics.getWidth() * (i - 5) / 5, Gdx.graphics.getHeight() / 3));
+            if(GameState.unlockedLevels[i] == 0) {
+                levelButtons[i].setActive(false);
+                levelButtons[i].setColor(new Color(0.75f, 0.25f, 0.25f, 0.5f));
+            }
+        }
+        levelButtons[10] = new CustomTextButton(ProjectEvolve.LEVEL_SELECT_NAMES[10], skin);
+        levelButtons[10].setSize(new Vector2(Gdx.graphics.getWidth() / 5, Gdx.graphics.getHeight() / 3));
+        levelButtons[10].setPosition(new Vector2(Gdx.graphics.getWidth() * 2 / 5, 0));
+        if(GameState.unlockedLevels[10] == 0) {
+            levelButtons[10].setActive(false);
+            levelButtons[10].setColor(new Color(0.75f, 0.25f, 0.25f, 0.5f));
+        }
 
+        menuButton = new CustomTextButton("Menu", skin);
+        menuButton.setSize(new Vector2(Gdx.graphics.getWidth() / 5, Gdx.graphics.getHeight() / 6));
+        menuButton.setPosition(new Vector2(Gdx.graphics.getWidth() * 4 / 5, 0));
 
-        creatorButton = new CustomTextButton("Creator", skin);
-        creatorButton.setSize(new Vector2(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 5));
-        creatorButton.setPosition(new Vector2(Gdx.graphics.getWidth() / 2 - playButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 - 1 * playButton.getHeight() / 2));
-
-        infoButton = new CustomTextButton("About", skin);
-        infoButton.setSize(new Vector2(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 5));
-        infoButton.setPosition(new Vector2(Gdx.graphics.getWidth() / 2 - playButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 - 3 * playButton.getHeight() / 2));
     }
 
     @Override
@@ -107,19 +125,16 @@ public class MenuScreen implements Screen {
 
     public void update() {
         Vector2 touchLocation = new Vector2((Gdx.input.getX() - gamePort.getLeftGutterWidth()) * inputScaleAdjuster.x / ProjectEvolve.PPM, (-Gdx.input.getY() + gamePort.getTopGutterHeight() + gamePort.getScreenHeight()) * inputScaleAdjuster.y / ProjectEvolve.PPM);
-        playButton.update(touchLocation);
-        creatorButton.update(touchLocation);
-        infoButton.update(touchLocation);
-        if(Gdx.input.justTouched() && playButton.click(touchLocation)) {
-            game.setScreen(new LevelSelectScreen(game));
-            dispose();
+        for(int i = 0; i < ProjectEvolve.NUM_LEVELS; i++) {
+            levelButtons[i].update(touchLocation);
+            if (Gdx.input.justTouched() && levelButtons[i].click(touchLocation) && GameState.unlockedLevels[i] == 1) {
+                game.setScreen(new PlayScreen(game, i));
+                dispose();
+            }
         }
-        if(Gdx.input.justTouched() && creatorButton.click(touchLocation)) {
-            game.setScreen(new CreatorScreen(game));
-            dispose();
-        }
-        if(Gdx.input.justTouched() && infoButton.click(touchLocation)) {
-            game.setScreen(new InfoScreen(game));
+        menuButton.update(touchLocation);
+        if(Gdx.input.justTouched() && menuButton.click(touchLocation)) {
+            game.setScreen(new MenuScreen(game));
             dispose();
         }
     }
@@ -137,18 +152,17 @@ public class MenuScreen implements Screen {
 
         stage.act();
         stage.draw();
-        playButton.drawStage();
-        creatorButton.drawStage();
-        infoButton.drawStage();
+        for(int i = 0; i < ProjectEvolve.NUM_LEVELS; i++) {
+            levelButtons[i].drawStage();
+        }
+        menuButton.drawStage();
     }
 
     @Override
     public void resize(int width, int height) {
-        //stage.setViewport(width, height, false);
         gamePort.update(width, height);
         inputScaleAdjuster.x = (float) ProjectEvolve.V_WIDTH / (width - gamePort.getLeftGutterWidth() - gamePort.getRightGutterWidth());
         inputScaleAdjuster.y = (float) ProjectEvolve.V_HEIGHT / (height - gamePort.getTopGutterHeight() - gamePort.getBottomGutterHeight());
-        //gameCam.update();
 
     }
 

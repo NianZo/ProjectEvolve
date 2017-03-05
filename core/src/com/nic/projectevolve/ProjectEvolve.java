@@ -6,8 +6,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.nic.projectevolve.screens.MenuScreen;
 
 public class ProjectEvolve extends Game {
-	public static final int V_WIDTH = 800;
-	public static final int V_HEIGHT = 400;
+	public static final int V_WIDTH = 960;
+	public static final int V_HEIGHT = 540;
 	public static final float PPM = 100;
 
 	public static final int MAP_TILE_WIDTH = 50;
@@ -41,7 +41,13 @@ public class ProjectEvolve extends Game {
 	public static final short ATTACKING_BIT = 8;
 	public static final short DEFENDING_BIT = 16;
 
-	public static final String[] MODULE_TEXTURE_NAMES = {"normal_module.png", "attacking_module.png", "midgreenmodule.png"};
+	public static final String[] MODULE_TEXTURE_NAMES = {"speed_module.png", "attacking_module.png", "defense_module.png"};
+
+	public static final String[] BACKGROUND_TEXTURE_NAMES = {
+			"background_1.png",
+			"background_2.png",
+			"background_3.png",
+			"gray_square.png"};
 
 	public static final String[] UPGRADE_DESCRIPTIONS = {
 			"Upgrade\nSpeed Module\nCost: ",
@@ -53,6 +59,35 @@ public class ProjectEvolve extends Game {
 			"Speed Module\nLevel: ",
 			"Attack Module",
 			"Defense Module"
+	};
+
+	public static final String[] LEVEL_NAMES = {
+			"level_1.tmx",
+			"level_2.tmx",
+			"level_3.tmx",
+			"level_4.tmx",
+			"level_5.tmx",
+			"level_6.tmx",
+			"level_7.tmx",
+			"level_8.tmx",
+			"level_9.tmx",
+			"level_10.tmx",
+			"level_11.tmx",
+	};
+	public static final int NUM_LEVELS = 11;
+
+	public static final String[] LEVEL_SELECT_NAMES = {
+			"Level 1",
+			"Level 2",
+			"Level 3",
+			"Level 4",
+			"Level 5",
+			"Level 6",
+			"Level 7",
+			"Level 8",
+			"Level 9",
+			"Level 10",
+			"Level 11"
 	};
 
 	@Override

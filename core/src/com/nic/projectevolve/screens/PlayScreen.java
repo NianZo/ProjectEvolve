@@ -2,8 +2,12 @@ package com.nic.projectevolve.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -11,8 +15,12 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.nic.projectevolve.GameState;
 import com.nic.projectevolve.ProjectEvolve;
 import com.nic.projectevolve.physics.Body;
 import com.nic.projectevolve.physics.BodyGroup;
@@ -51,18 +59,26 @@ public class PlayScreen implements Screen{
     // Create the body list that will handle all collision
     public static BodyList bodyList;
 
-    public PlayScreen(ProjectEvolve game) {
+    private TextButton screenBlank;
+    private boolean drawScreenBlank;
+    private float stateTimer;
+    private Stage stage;
+
+    private int levelNumber;
+
+    public PlayScreen(ProjectEvolve game, int levelNumber) {
         this.game = game;
+        this.levelNumber = levelNumber;
 
         // Create gameCam and gamePort and center gameCam (makes 0,0 bottom left)
         gameCam = new OrthographicCamera();
         gamePort = new FitViewport(ProjectEvolve.V_WIDTH / ProjectEvolve.PPM, ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM, gameCam);
-        gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
+//        gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
         inputScaleAdjuster = new Vector2(1, 1);
 
         // Load the map and give it to the renderer with the pixel scale
         TmxMapLoader mapLoader = new TmxMapLoader();
-        TiledMap map = mapLoader.load("pre_alpha_world.tmx");
+        TiledMap map = mapLoader.load(ProjectEvolve.LEVEL_NAMES[levelNumber]);
         renderer = new OrthogonalTiledMapRenderer(map, 1 / ProjectEvolve.PPM);
 
         // Create the bodyList (note that this must be done before any collision bodies are created anywhere)
@@ -73,7 +89,12 @@ public class PlayScreen implements Screen{
         hud = new Hud(game.batch);
 
         // Create the player
-        player = new Player();
+        for(MapObject object : map.getLayers().get(4).getObjects().getByType(RectangleMapObject.class)) {
+            Rectangle rect = ((RectangleMapObject) object).getRectangle();
+            player = new Player(rect.getX() / ProjectEvolve.PPM, rect.getY() / ProjectEvolve.PPM);
+        }
+        player.update(0);
+        gameCam.position.set(player.getPosition().x, player.getPosition().y, 0);
 
         // Create border objects based on the .tmx level file
         BodyGroup edgeGroup = new BodyGroup(new Vector2(0, 0), bodyList, 0, 0);
@@ -93,7 +114,58 @@ public class PlayScreen implements Screen{
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
             Enemy enemy = new Enemy(player, new Vector2(rect.getX() / ProjectEvolve.PPM, rect.getY() / ProjectEvolve.PPM));
             enemies.add(enemy);
+            enemy.update(0);
         }
+
+        createButton();
+        drawScreenBlank = true;
+        stateTimer = 0;
+
+        // Clamp the gameCam if near the edge of the map
+        if(player.getPosition().x >= gamePort.getWorldWidth() / 2 && player.getPosition().x <= (ProjectEvolve.MAP_TILE_WIDTH * 32 / ProjectEvolve.PPM - gamePort.getWorldWidth() / 2)) {
+            gameCam.position.x = player.getPosition().x;
+        }
+        if(player.getPosition().y >= gamePort.getWorldHeight() / 2 && player.getPosition().y <= (ProjectEvolve.MAP_TILE_HEIGHT * 32 / ProjectEvolve.PPM - gamePort.getWorldHeight() / 2)) {
+            gameCam.position.y = player.getPosition().y;
+        }
+    }
+
+    private void createButton() {
+        // Creating a texture named white and adding it to skin
+        Pixmap pixmap = new Pixmap(100, 100, Pixmap.Format.RGBA8888);
+        pixmap.setColor(Color.WHITE);
+        pixmap.fill();
+
+        Skin skin = new Skin();
+
+        skin.add("white", new Texture(pixmap));
+
+        // Store default libGdx font as "default"
+        BitmapFont bFont = new BitmapFont();
+        // skipping a scale line because BitmapFont.scale(int) is undefined
+        skin.add("default", bFont);
+        skin.getFont("default").getData().setScale(4.0f);
+
+        // Configuring a TextButtonStyle named "default"
+        Color uncheckedColor = new Color(0.25f, 0.25f, 0.25f, 0.5f);
+        Color checkedColor = new Color(0.5f, 0.5f, 0.5f, 0.75f);
+        TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
+        textButtonStyle.up = skin.newDrawable("white", uncheckedColor);
+        textButtonStyle.down = skin.newDrawable("white", uncheckedColor);
+        textButtonStyle.checked = skin.newDrawable("white", uncheckedColor);
+        textButtonStyle.over = skin.newDrawable("white", uncheckedColor);
+
+        textButtonStyle.font = skin.getFont("default");
+
+        skin.add("default", textButtonStyle);
+
+        screenBlank = new TextButton("", skin);
+        screenBlank.setText("Begin!");
+        screenBlank.setPosition(0, 0);
+        screenBlank.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+
+        stage = new Stage();
+        stage.addActor(screenBlank);
     }
 
     @Override
@@ -117,8 +189,41 @@ public class PlayScreen implements Screen{
     }
 
     public void update(float dt) {
+        renderer.setView(gameCam);
+
+        // Check for beginning / ending sequence first
+        if(drawScreenBlank) {
+            // Update HUD
+            hud.update(player.getEnergy());
+            // Clamp the gameCam if near the edge of the map
+            if(player.getPosition().x < gamePort.getWorldWidth() / 2) {
+                gameCam.position.x = gamePort.getWorldWidth() / 2;
+            } else if(player.getPosition().x > (ProjectEvolve.MAP_TILE_WIDTH * 32 / ProjectEvolve.PPM - gamePort.getWorldWidth() / 2)) {
+                gameCam.position.x = ProjectEvolve.MAP_TILE_WIDTH * 32 / ProjectEvolve.PPM - gamePort.getWorldWidth() / 2;
+            }
+            if(player.getPosition().y < gamePort.getWorldHeight() / 2) {
+                gameCam.position.y = gamePort.getWorldHeight() / 2;
+            } else if(player.getPosition().y > (ProjectEvolve.MAP_TILE_HEIGHT * 32 / ProjectEvolve.PPM - gamePort.getWorldHeight() / 2)) {
+                gameCam.position.y = ProjectEvolve.MAP_TILE_HEIGHT * 32 / ProjectEvolve.PPM - gamePort.getWorldHeight() / 2;
+            }
+            gameCam.update();
+            renderer.setView(gameCam);
+            stateTimer += dt;
+            if(stateTimer > 3.0f) {
+                drawScreenBlank = false;
+                stateTimer = 0;
+                if(player.isDead() || enemies.size() == 0) {
+                    dispose();
+                    game.setScreen(new MenuScreen(game));
+
+                }
+            }
+            return;
+        }
+
         // Handle input before updating anything
         handleInput(dt);
+
 
         // Update player
         player.update(dt);
@@ -126,6 +231,10 @@ public class PlayScreen implements Screen{
         // Update enemies
         for(int i = 0; i < enemies.size(); i++) {
             enemies.get(i).update(dt);
+            if(enemies.get(i).isDead()) {
+                enemies.get(i).dispose();
+                enemies.remove(i);
+            }
         }
 
         // Update HUD
@@ -144,6 +253,21 @@ public class PlayScreen implements Screen{
 
         // For the world, only render what the gameCam can see
         renderer.setView(gameCam);
+
+        if(enemies.size() == 0 && !player.isDead()) {
+            if(levelNumber < ProjectEvolve.NUM_LEVELS - 1) {
+                GameState.unlockedLevels[levelNumber + 1] = 1;
+            }
+            screenBlank.setText("Success!");
+            drawScreenBlank = true;
+            //dispose();
+            //game.setScreen(new MenuScreen(game));
+        }
+
+        if(player.isDead()) {
+            screenBlank.setText("You Died");
+            drawScreenBlank = true;
+        }
     }
 
     @Override
@@ -171,10 +295,8 @@ public class PlayScreen implements Screen{
         game.batch.setProjectionMatrix(hud.stage.getCamera().combined);
         hud.stage.draw();
 
-        // If the player is dead, go to the menu screen and dispose of resources from this screen
-        if (player.isDead()) {
-            game.setScreen(new MenuScreen(game));
-            dispose();
+        if(drawScreenBlank) {
+            stage.draw();
         }
     }
 
@@ -205,9 +327,7 @@ public class PlayScreen implements Screen{
         renderer.dispose();
         hud.dispose();
         player.dispose();
-        for(int i = 0; i < enemies.size(); i++) {
-            enemies.get(i).dispose();
-        }
+        //GameState.unlockedLevels[levelNumber + 1] = 1;
         ProjectEvolve.state.saveStateToFile();
     }
 }

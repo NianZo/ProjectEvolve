@@ -8,17 +8,17 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.nic.projectevolve.GameState;
 import com.nic.projectevolve.ProjectEvolve;
 import com.nic.projectevolve.uiComponents.CreatorMatrix;
+import com.nic.projectevolve.uiComponents.CustomTextButton;
 import com.nic.projectevolve.uiComponents.DraggableImage;
 import com.nic.projectevolve.uiComponents.ModuleDeleter;
 import com.nic.projectevolve.uiComponents.ModuleSpawner;
@@ -53,6 +53,11 @@ public class CreatorScreen implements Screen{
 
     private TextButton resourceButton;
 
+    private CustomTextButton menuButton;
+    private Vector2 inputScaleAdjuster;
+
+    private Sprite backgroundSprite;
+
     public CreatorScreen(ProjectEvolve game) {
         //Gdx.input.setInputProcessor(stage);
         modules = new DraggableImage[19];
@@ -64,7 +69,7 @@ public class CreatorScreen implements Screen{
         int numUpgradeButtons = 3;
         upgradeButtons = new UpgradeButton[numUpgradeButtons];
 
-
+        inputScaleAdjuster = new Vector2(1, 1);
 
         this.game = game;
 
@@ -78,11 +83,15 @@ public class CreatorScreen implements Screen{
         // Set up UI (buttons, and other clickables)
         // Moved since this needs to reference gamePort for sizing
         createButtons();
+
+        backgroundSprite = new Sprite(new Texture(ProjectEvolve.BACKGROUND_TEXTURE_NAMES[2]));
+        backgroundSprite.setPosition(0, 0);
+        backgroundSprite.setSize(ProjectEvolve.V_WIDTH / ProjectEvolve.PPM, ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM);
     }
 
     private void createButtons() {
         stage = new Stage();
-        Gdx.input.setInputProcessor(stage);
+        //Gdx.input.setInputProcessor(stage);
 
         // Setup default font for text buttons
         BitmapFont font = new BitmapFont();
@@ -96,27 +105,32 @@ public class CreatorScreen implements Screen{
         skin.add("background", new Texture(pixmap));
 
         // Create button style
+        Color uncheckedColor = new Color(0.25f, 0.25f, 0.25f, 0.7f);
+        Color checkedColor = new Color(0.25f, 0.25f, 0.25f, 0.95f);
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.up = skin.newDrawable("background", Color.DARK_GRAY);
+        textButtonStyle.up = skin.newDrawable("background", uncheckedColor);
         textButtonStyle.down = skin.newDrawable("background", Color.DARK_GRAY);
-        textButtonStyle.checked = skin.newDrawable("background", Color.LIGHT_GRAY);
-        textButtonStyle.over = skin.newDrawable("background", Color.LIGHT_GRAY);
+        textButtonStyle.checked = skin.newDrawable("background", checkedColor);
+        textButtonStyle.over = skin.newDrawable("background", checkedColor);
         textButtonStyle.font = skin.getFont("default");
         skin.add("default", textButtonStyle);
 
-        TextButton menuButton = new TextButton("Back to Menu", skin);
-        menuButton.setSize(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 4);
-        menuButton.setPosition(ProjectEvolve.V_WIDTH - menuButton.getWidth(), 0);
-        stage.addActor(menuButton);
-
-        // Create event listener for menuButton
-        menuButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                game.setScreen(new MenuScreen(game));
-                dispose();
-            }
-        });
+//        TextButton menuButton = new TextButton("Back to Menu", skin);
+//        menuButton.setSize(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 4);
+//        menuButton.setPosition(ProjectEvolve.V_WIDTH - menuButton.getWidth(), 0);
+//        stage.addActor(menuButton);
+//
+//        // Create event listener for menuButton
+//        menuButton.addListener(new ChangeListener() {
+//            @Override
+//            public void changed(ChangeEvent event, Actor actor) {
+//                game.setScreen(new MenuScreen(game));
+//                dispose();
+//            }
+//        });
+        menuButton = new CustomTextButton("Return to Menu", skin);
+        menuButton.setSize(new Vector2(Gdx.graphics.getWidth() * 3 / 11, Gdx.graphics.getHeight() / 4));
+        menuButton.setPosition(new Vector2(Gdx.graphics.getWidth() * 8 / 11, 0));
 
         creatorMatrix = new CreatorMatrix("hexagon_grid.png", new Vector2(ProjectEvolve.V_WIDTH / 2 / ProjectEvolve.PPM, ProjectEvolve.V_HEIGHT / 2 / ProjectEvolve.PPM));
 
@@ -150,7 +164,8 @@ public class CreatorScreen implements Screen{
 
     private void handleInput() {
         // Pre-calculate the touch location so it only needs to be calculated once
-        Vector2 touchLocation = new Vector2(Gdx.input.getX() / ProjectEvolve.PPM, -Gdx.input.getY() / ProjectEvolve.PPM + ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM);
+        //Vector2 touchLocation = new Vector2(Gdx.input.getX() / ProjectEvolve.PPM, -Gdx.input.getY() / ProjectEvolve.PPM + ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM);
+        Vector2 touchLocation = new Vector2((Gdx.input.getX() - gamePort.getLeftGutterWidth()) * inputScaleAdjuster.x / ProjectEvolve.PPM, (-Gdx.input.getY() + gamePort.getTopGutterHeight() + gamePort.getScreenHeight()) * inputScaleAdjuster.y / ProjectEvolve.PPM);
 
         // Update UpgradeButtons here since they need touchLocation
         upgradeButtons[0].update(touchLocation);
@@ -159,9 +174,16 @@ public class CreatorScreen implements Screen{
         spawners[0].update(touchLocation);
         spawners[1].update(touchLocation);
         spawners[2].update(touchLocation);
+        menuButton.update(touchLocation);
+        moduleDeleter.update(touchLocation);
 
         // Handle if the screen was just touched (mostly pick up operations)
         if(Gdx.input.justTouched()) {
+            // Check if menuButton was clicked
+            if(menuButton.click(touchLocation)) {
+                game.setScreen(new MenuScreen(game));
+                dispose();
+            }
             // Check if any spawners need picked up
             for(int i = 0; i < numSpawners; i++) {
                 spawners[i].tryPickUp(touchLocation);
@@ -265,15 +287,17 @@ public class CreatorScreen implements Screen{
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        game.batch.setProjectionMatrix(gameCam.combined);
+        game.batch.begin();
+        backgroundSprite.draw(game.batch);
+        game.batch.end();
+
+        // Draw custom button
+        menuButton.drawStage();
+
         stage.act();
         stage.draw();
-        upgradeButtons[0].drawStage();
-        upgradeButtons[1].drawStage();
-        upgradeButtons[2].drawStage();
-        spawners[0].drawStage();
-        spawners[1].drawStage();
-        spawners[2].drawStage();
-        moduleDeleter.drawStage();
+
         game.batch.setProjectionMatrix(gameCam.combined);
         game.batch.begin();
 
@@ -300,12 +324,22 @@ public class CreatorScreen implements Screen{
         //dragImage1.render(game.batch);
 
         game.batch.end();
+
+        upgradeButtons[0].drawStage();
+        upgradeButtons[1].drawStage();
+        upgradeButtons[2].drawStage();
+        spawners[0].drawStage();
+        spawners[1].drawStage();
+        spawners[2].drawStage();
+        moduleDeleter.drawStage();
     }
 
     @Override
     public void resize(int width, int height) {
         gamePort.update(width, height);
         //menuButton.setPosition(Gdx.graphics.getWidth() - menuButton.getWidth(), 0);
+        inputScaleAdjuster.x = (float) ProjectEvolve.V_WIDTH / (width - gamePort.getLeftGutterWidth() - gamePort.getRightGutterWidth());
+        inputScaleAdjuster.y = (float) ProjectEvolve.V_HEIGHT / (height - gamePort.getTopGutterHeight() - gamePort.getBottomGutterHeight());
     }
 
     @Override

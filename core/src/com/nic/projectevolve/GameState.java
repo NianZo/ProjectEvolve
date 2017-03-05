@@ -16,6 +16,7 @@ public class GameState {
     //public static int playerDefenseLevel = 1;
     //public static int playerAttackLevel = 1;
     public static int[] moduleLevels = {1,1,1};
+    public static int[] unlockedLevels = {1,0,0,0,0,0,0,0,0,0,0};
 
     public GameState() {
         moduleLocations = new short[ProjectEvolve.NUM_MODULES];

@@ -26,7 +26,7 @@ public class UpgradeButton {
     private Sprite icon;
     private Texture iconTexture;
     private TextButton description;
-    private Sprite background;
+    private Sprite backgroundSprite;
     private Vector2 position;
     private Vector2 size;
     private boolean active;
@@ -51,6 +51,10 @@ public class UpgradeButton {
         description.setPosition(position.x + size.y, position.y);
         description.setSize(size.x - size.y, size.y);
         stage.addActor(description);
+
+        backgroundSprite = new Sprite(new Texture(ProjectEvolve.BACKGROUND_TEXTURE_NAMES[3]));
+        backgroundSprite.setPosition(position.x / ProjectEvolve.PPM, position.y / ProjectEvolve.PPM);
+        backgroundSprite.setSize(size.x / ProjectEvolve.PPM, size.y / ProjectEvolve.PPM);
     }
 
     private void createTextField() {
@@ -68,8 +72,9 @@ public class UpgradeButton {
         skin.add("background", new Texture(pixmap));
 
         // Create button style
+        Color clear = new Color(1, 1, 1, 0);
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
-        textButtonStyle.up = skin.newDrawable("background", Color.DARK_GRAY);
+        textButtonStyle.up = skin.newDrawable("background", clear);
         textButtonStyle.down = skin.newDrawable("background", Color.DARK_GRAY);
         textButtonStyle.checked = skin.newDrawable("background", Color.LIGHT_GRAY);
         textButtonStyle.over = skin.newDrawable("background", Color.LIGHT_GRAY);
@@ -91,6 +96,7 @@ public class UpgradeButton {
     }
 
     public void render(SpriteBatch batch) {
+        backgroundSprite.draw(batch);
         icon.draw(batch);
     }
 
@@ -100,6 +106,7 @@ public class UpgradeButton {
 
     public void update(Vector2 touchPosition) {
         icon.setAlpha(.75f);
+        backgroundSprite.setAlpha(.5f);
         if (touchPosition.x > position.x / ProjectEvolve.PPM &&
                 touchPosition.x < (position.x + size.x) / ProjectEvolve.PPM &&
                 touchPosition.y > position.y / ProjectEvolve.PPM &&
@@ -109,6 +116,7 @@ public class UpgradeButton {
             //System.out.print(type);
             //System.out.println(" highlighted");
             icon.setAlpha(1.0f);
+            backgroundSprite.setAlpha(.75f);
         }
 
         active = GameState.geneticMaterial >= ProjectEvolve.UPGRADE_COSTS[type][GameState.moduleLevels[type]];

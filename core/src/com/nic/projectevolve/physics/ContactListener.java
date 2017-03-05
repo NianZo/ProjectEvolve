@@ -45,7 +45,7 @@ public class ContactListener {
 
             // Add energy and resource if enemy dies
             if(enemy.isDead()) {
-                player.addEnergy(50);
+                player.addEnergy(100);
                 GameState.geneticMaterial++;
             }
         } else if ((b.getCollisionIdentity() & ProjectEvolve.PLAYER_BIT) != 0) {

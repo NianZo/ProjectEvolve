@@ -31,13 +31,13 @@ public class Player {
     private int energy;
     private float energyTime;
 
-    public Player() {
+    public Player(float x, float y) {
         // Initialize modules array and numModules counter
         modules = new Module[ProjectEvolve.NUM_MODULES];
         numModules = 0;
 
         // Initialize player to 128,128 pixels
-        position = new Vector2(128 / ProjectEvolve.PPM, 128 / ProjectEvolve.PPM);
+        position = new Vector2(x, y);
 
         // Create the player's bodyGroup
         bodyGroup = new BodyGroup(position, PlayScreen.bodyList, ProjectEvolve.MAX_VELOCITY, ProjectEvolve.MAX_ANGULAR_VELOCITY);
