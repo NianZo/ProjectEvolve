@@ -2,6 +2,8 @@ package com.nic.projectevolve;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.nic.projectevolve.screens.MenuScreen;
 
@@ -90,11 +92,16 @@ public class ProjectEvolve extends Game {
 			"Level 11"
 	};
 
+	public AssetManager manager;
+
 	@Override
 	public void create () {
 		GameState.geneticMaterial = 0;
 		batch = new SpriteBatch();
 		state = new GameState();
+		manager = new AssetManager();
+		manager.load("sounds/play_theme.ogg", Music.class);
+		manager.finishLoading();
 		if(Gdx.files.local("game_state.txt").length() != 0) {
 			state.readStateFromFile();
 		}

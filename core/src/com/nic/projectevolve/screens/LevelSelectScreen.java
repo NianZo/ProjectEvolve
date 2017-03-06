@@ -33,14 +33,14 @@ public class LevelSelectScreen implements Screen{
 
     private Vector2 inputScaleAdjuster;
 
-    private CustomTextButton[] levelButtons;
+    private CustomTextButton[][] levelButtons;
     private CustomTextButton menuButton;
 
     private Sprite backgroundSprite;
     private OrthographicCamera gameCam;
 
     public LevelSelectScreen(ProjectEvolve game) {
-        levelButtons = new CustomTextButton[11];
+        levelButtons = new CustomTextButton[2][11];
         create();
         this.game = game;
 
@@ -87,29 +87,40 @@ public class LevelSelectScreen implements Screen{
         skin.add("default", textButtonStyle);
 
         for(int i = 0; i < 5; i++) {
-            levelButtons[i] = new CustomTextButton(ProjectEvolve.LEVEL_SELECT_NAMES[i], skin);
-            levelButtons[i].setSize(new Vector2(Gdx.graphics.getWidth() / 5, Gdx.graphics.getHeight() / 3));
-            levelButtons[i].setPosition(new Vector2(Gdx.graphics.getWidth() * i / 5, Gdx.graphics.getHeight() * 2 / 3));
-            if(GameState.unlockedLevels[i] == 0) {
-                levelButtons[i].setActive(false);
-                levelButtons[i].setColor(new Color(0.75f, 0.25f, 0.25f, 0.5f));
+            levelButtons[0][i] = new CustomTextButton(ProjectEvolve.LEVEL_SELECT_NAMES[i], skin);
+            levelButtons[0][i].setSize(new Vector2(Gdx.graphics.getWidth() / 5, Gdx.graphics.getHeight() / 3));
+            levelButtons[0][i].setPosition(new Vector2(Gdx.graphics.getWidth() * i / 5, Gdx.graphics.getHeight() * 2 / 3));
+            levelButtons[0][i].setActive(false);
+            levelButtons[0][i].setColor(new Color(0.75f, 0.25f, 0.25f, 0.5f));
+            if(GameState.unlockedLevels[i] != 0) {
+//                levelButtons[0][i].setActive(false);
+//                levelButtons[0][i].setColor(new Color(0.75f, 0.25f, 0.25f, 0.5f));
+                levelButtons[1][i] = new CustomTextButton(ProjectEvolve.LEVEL_SELECT_NAMES[i], skin);
+                levelButtons[1][i].setSize(new Vector2(levelButtons[0][i].getWidth() - 10, levelButtons[0][i].getHeight() - 10));
+                levelButtons[1][i].setPosition(new Vector2(levelButtons[0][i].getPosition().x + 5, levelButtons[0][i].getPosition().y + 5));
             }
         }
         for(int i = 5; i < 10; i++) {
-            levelButtons[i] = new CustomTextButton(ProjectEvolve.LEVEL_SELECT_NAMES[i], skin);
-            levelButtons[i].setSize(new Vector2(Gdx.graphics.getWidth() / 5, Gdx.graphics.getHeight() / 3));
-            levelButtons[i].setPosition(new Vector2(Gdx.graphics.getWidth() * (i - 5) / 5, Gdx.graphics.getHeight() / 3));
-            if(GameState.unlockedLevels[i] == 0) {
-                levelButtons[i].setActive(false);
-                levelButtons[i].setColor(new Color(0.75f, 0.25f, 0.25f, 0.5f));
+            levelButtons[0][i] = new CustomTextButton(ProjectEvolve.LEVEL_SELECT_NAMES[i], skin);
+            levelButtons[0][i].setSize(new Vector2(Gdx.graphics.getWidth() / 5, Gdx.graphics.getHeight() / 3));
+            levelButtons[0][i].setPosition(new Vector2(Gdx.graphics.getWidth() * (i - 5) / 5, Gdx.graphics.getHeight() / 3));
+            levelButtons[0][i].setActive(false);
+            levelButtons[0][i].setColor(new Color(0.75f, 0.25f, 0.25f, 0.5f));
+            if(GameState.unlockedLevels[i] != 0) {
+                levelButtons[1][i] = new CustomTextButton(ProjectEvolve.LEVEL_SELECT_NAMES[i], skin);
+                levelButtons[1][i].setSize(new Vector2(levelButtons[0][i].getWidth() - 10, levelButtons[0][i].getHeight() - 10));
+                levelButtons[1][i].setPosition(new Vector2(levelButtons[0][i].getPosition().x + 5, levelButtons[0][i].getPosition().y + 5));
             }
         }
-        levelButtons[10] = new CustomTextButton(ProjectEvolve.LEVEL_SELECT_NAMES[10], skin);
-        levelButtons[10].setSize(new Vector2(Gdx.graphics.getWidth() / 5, Gdx.graphics.getHeight() / 3));
-        levelButtons[10].setPosition(new Vector2(Gdx.graphics.getWidth() * 2 / 5, 0));
-        if(GameState.unlockedLevels[10] == 0) {
-            levelButtons[10].setActive(false);
-            levelButtons[10].setColor(new Color(0.75f, 0.25f, 0.25f, 0.5f));
+        levelButtons[0][10] = new CustomTextButton(ProjectEvolve.LEVEL_SELECT_NAMES[10], skin);
+        levelButtons[0][10].setSize(new Vector2(Gdx.graphics.getWidth() / 5, Gdx.graphics.getHeight() / 3));
+        levelButtons[0][10].setPosition(new Vector2(Gdx.graphics.getWidth() * 2 / 5, 0));
+        levelButtons[0][10].setActive(false);
+        levelButtons[0][10].setColor(new Color(0.75f, 0.25f, 0.25f, 0.5f));
+        if(GameState.unlockedLevels[10] != 0) {
+            levelButtons[1][10] = new CustomTextButton(ProjectEvolve.LEVEL_SELECT_NAMES[10], skin);
+            levelButtons[1][10].setSize(new Vector2(levelButtons[0][10].getWidth() - 10, levelButtons[0][10].getHeight() - 10));
+            levelButtons[1][10].setPosition(new Vector2(levelButtons[0][10].getPosition().x + 5, levelButtons[0][10].getPosition().y + 5));
         }
 
         menuButton = new CustomTextButton("Menu", skin);
@@ -126,10 +137,12 @@ public class LevelSelectScreen implements Screen{
     public void update() {
         Vector2 touchLocation = new Vector2((Gdx.input.getX() - gamePort.getLeftGutterWidth()) * inputScaleAdjuster.x / ProjectEvolve.PPM, (-Gdx.input.getY() + gamePort.getTopGutterHeight() + gamePort.getScreenHeight()) * inputScaleAdjuster.y / ProjectEvolve.PPM);
         for(int i = 0; i < ProjectEvolve.NUM_LEVELS; i++) {
-            levelButtons[i].update(touchLocation);
-            if (Gdx.input.justTouched() && levelButtons[i].click(touchLocation) && GameState.unlockedLevels[i] == 1) {
-                game.setScreen(new PlayScreen(game, i));
-                dispose();
+            if(levelButtons[1][i] != null) {
+                levelButtons[1][i].update(touchLocation);
+                if (Gdx.input.justTouched() && levelButtons[1][i].click(touchLocation) && GameState.unlockedLevels[i] == 1) {
+                    game.setScreen(new PlayScreen(game, i));
+                    dispose();
+                }
             }
         }
         menuButton.update(touchLocation);
@@ -153,7 +166,12 @@ public class LevelSelectScreen implements Screen{
         stage.act();
         stage.draw();
         for(int i = 0; i < ProjectEvolve.NUM_LEVELS; i++) {
-            levelButtons[i].drawStage();
+            levelButtons[0][i].drawStage();
+        }
+        for(int i = 0; i < ProjectEvolve.NUM_LEVELS; i++) {
+            if(levelButtons[1][i] != null) {
+                levelButtons[1][i].drawStage();
+            }
         }
         menuButton.drawStage();
     }

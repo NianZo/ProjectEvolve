@@ -47,6 +47,11 @@ public class ContactListener {
             if(enemy.isDead()) {
                 player.addEnergy(100);
                 GameState.geneticMaterial++;
+                if(GameState.geneticMaterial > 255) {
+                    GameState.geneticMaterial = 255;
+                } else if(GameState.geneticMaterial < 0) {
+                    GameState.geneticMaterial = 0;
+                }
             }
         } else if ((b.getCollisionIdentity() & ProjectEvolve.PLAYER_BIT) != 0) {
             Player player = (Player) b.getUserData();
@@ -78,6 +83,11 @@ public class ContactListener {
             if(enemy.isDead()) {
                 player.addEnergy(50);
                 GameState.geneticMaterial++;
+                if(GameState.geneticMaterial > 255) {
+                    GameState.geneticMaterial = 255;
+                } else if(GameState.geneticMaterial < 0) {
+                    GameState.geneticMaterial = 0;
+                }
             }
         }
 //        if (a.getCollisionIdentity() == ProjectEvolve.PLAYER_BIT && b.getCollisionIdentity() == ProjectEvolve.ENEMY_BIT) {

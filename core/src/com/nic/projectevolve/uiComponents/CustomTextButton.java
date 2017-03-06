@@ -35,6 +35,10 @@ public class CustomTextButton {
         this.position = position;
     }
 
+    public Vector2 getPosition() {
+        return position;
+    }
+
     public void setSize(Vector2 size) {
         textButton.setSize(size.x, size.y);
         this.size = size;

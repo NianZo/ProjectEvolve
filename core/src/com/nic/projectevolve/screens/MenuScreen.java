@@ -86,18 +86,25 @@ public class MenuScreen implements Screen {
 
         skin.add("default", textButtonStyle);
 
-        playButton = new CustomTextButton("PLAY", skin);
-        playButton.setSize(new Vector2(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 5));
-        playButton.setPosition(new Vector2(Gdx.graphics.getWidth() / 2 - playButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 1 * playButton.getHeight() / 2));
+        CustomTextButton playButtonB;
+        playButtonB = new CustomTextButton("Select Level", skin);
+        playButtonB.setSize(new Vector2(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 5));
+        playButtonB.setPosition(new Vector2(Gdx.graphics.getWidth() / 2 - playButtonB.getWidth() / 2, Gdx.graphics.getHeight() / 2 + 1 * playButtonB.getHeight() / 2));
+        playButtonB.setActive(false);
+        playButtonB.setColor(new Color(0.75f, 0.25f, 0.25f, 0.5f));
+
+        playButton = new CustomTextButton("Select Level", skin);
+        playButton.setSize(new Vector2(Gdx.graphics.getWidth() / 3 - 10, Gdx.graphics.getHeight() / 5 - 10));
+        playButton.setPosition(new Vector2(Gdx.graphics.getWidth() / 2 - playButtonB.getWidth() / 2 + 5, Gdx.graphics.getHeight() / 2 + 1 * playButtonB.getHeight() / 2 + 5));
 
 
-        creatorButton = new CustomTextButton("Creator", skin);
-        creatorButton.setSize(new Vector2(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 5));
-        creatorButton.setPosition(new Vector2(Gdx.graphics.getWidth() / 2 - playButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 - 1 * playButton.getHeight() / 2));
+        creatorButton = new CustomTextButton(" Creature Creator", skin);
+        creatorButton.setSize(new Vector2(Gdx.graphics.getWidth() / 3 - 10, Gdx.graphics.getHeight() / 5 - 10));
+        creatorButton.setPosition(new Vector2(Gdx.graphics.getWidth() / 2 - playButtonB.getWidth() / 2 + 5, Gdx.graphics.getHeight() / 2 - 1 * playButtonB.getHeight() / 2 + 5));
 
-        infoButton = new CustomTextButton("About", skin);
-        infoButton.setSize(new Vector2(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 5));
-        infoButton.setPosition(new Vector2(Gdx.graphics.getWidth() / 2 - playButton.getWidth() / 2, Gdx.graphics.getHeight() / 2 - 3 * playButton.getHeight() / 2));
+        infoButton = new CustomTextButton("About Game", skin);
+        infoButton.setSize(new Vector2(Gdx.graphics.getWidth() / 3 - 10, Gdx.graphics.getHeight() / 5 - 10));
+        infoButton.setPosition(new Vector2(Gdx.graphics.getWidth() / 2 - playButtonB.getWidth() / 2 + 5, Gdx.graphics.getHeight() / 2 - 3 * playButtonB.getHeight() / 2 + 5));
     }
 
     @Override

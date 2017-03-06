@@ -2,6 +2,7 @@ package com.nic.projectevolve.screens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -66,6 +67,8 @@ public class PlayScreen implements Screen{
 
     private int levelNumber;
 
+    private Music music;
+
     public PlayScreen(ProjectEvolve game, int levelNumber) {
         this.game = game;
         this.levelNumber = levelNumber;
@@ -128,6 +131,11 @@ public class PlayScreen implements Screen{
         if(player.getPosition().y >= gamePort.getWorldHeight() / 2 && player.getPosition().y <= (ProjectEvolve.MAP_TILE_HEIGHT * 32 / ProjectEvolve.PPM - gamePort.getWorldHeight() / 2)) {
             gameCam.position.y = player.getPosition().y;
         }
+
+        music = game.manager.get("sounds/play_theme.ogg", Music.class);
+        music.setLooping(true);
+        music.setVolume(0.33f);
+        music.play();
     }
 
     private void createButton() {
@@ -148,7 +156,7 @@ public class PlayScreen implements Screen{
 
         // Configuring a TextButtonStyle named "default"
         Color uncheckedColor = new Color(0.25f, 0.25f, 0.25f, 0.5f);
-        Color checkedColor = new Color(0.5f, 0.5f, 0.5f, 0.75f);
+        //Color checkedColor = new Color(0.5f, 0.5f, 0.5f, 0.75f);
         TextButton.TextButtonStyle textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.up = skin.newDrawable("white", uncheckedColor);
         textButtonStyle.down = skin.newDrawable("white", uncheckedColor);
@@ -327,6 +335,8 @@ public class PlayScreen implements Screen{
         renderer.dispose();
         hud.dispose();
         player.dispose();
+        music.stop();
+        music.dispose();
         //GameState.unlockedLevels[levelNumber + 1] = 1;
         ProjectEvolve.state.saveStateToFile();
     }

@@ -129,8 +129,8 @@ public class CreatorScreen implements Screen{
 //            }
 //        });
         menuButton = new CustomTextButton("Return to Menu", skin);
-        menuButton.setSize(new Vector2(Gdx.graphics.getWidth() * 3 / 11, Gdx.graphics.getHeight() / 4));
-        menuButton.setPosition(new Vector2(Gdx.graphics.getWidth() * 8 / 11, 0));
+        menuButton.setSize(new Vector2(Gdx.graphics.getWidth() * 3 / 11 - 10, Gdx.graphics.getHeight() / 4 - 10));
+        menuButton.setPosition(new Vector2(Gdx.graphics.getWidth() * 8 / 11 + 5, 5));
 
         creatorMatrix = new CreatorMatrix("hexagon_grid.png", new Vector2(ProjectEvolve.V_WIDTH / 2 / ProjectEvolve.PPM, ProjectEvolve.V_HEIGHT / 2 / ProjectEvolve.PPM));
 
@@ -148,13 +148,13 @@ public class CreatorScreen implements Screen{
         resourceButton.setPosition(Gdx.graphics.getWidth() / 2 - resourceButton.getWidth() / 2, Gdx.graphics.getHeight() - resourceButton.getHeight());
         stage.addActor(resourceButton);
 
-        spawners[0] = new ModuleSpawner(0, new Vector2(0, Gdx.graphics.getHeight() * 3 / 4), new Vector2(3 * Gdx.graphics.getWidth() / 11, Gdx.graphics.getHeight() / 4));
-        spawners[1] = new ModuleSpawner(1, new Vector2(0, Gdx.graphics.getHeight() * 2 / 4), new Vector2(3 * Gdx.graphics.getWidth() / 11, Gdx.graphics.getHeight() / 4));
-        spawners[2] = new ModuleSpawner(2, new Vector2(0, Gdx.graphics.getHeight() / 4), new Vector2(3 * Gdx.graphics.getWidth() / 11, Gdx.graphics.getHeight() / 4));
-        moduleDeleter = new ModuleDeleter("delete.png", new Vector2(0, 0), new Vector2(3 * Gdx.graphics.getWidth() / 11, Gdx.graphics.getHeight() / 4));
-        upgradeButtons[0] = new UpgradeButton(0, new Vector2(Gdx.graphics.getWidth() * 8 / 11, Gdx.graphics.getHeight() * 3 / 4), new Vector2(3 * Gdx.graphics.getWidth() / 11, Gdx.graphics.getHeight() / 4));
-        upgradeButtons[1] = new UpgradeButton(1, new Vector2(Gdx.graphics.getWidth() * 8 / 11, Gdx.graphics.getHeight() * 2 / 4), new Vector2(3 * Gdx.graphics.getWidth() / 11, Gdx.graphics.getHeight() / 4));
-        upgradeButtons[2] = new UpgradeButton(2, new Vector2(Gdx.graphics.getWidth() * 8 / 11, Gdx.graphics.getHeight() / 4), new Vector2(3 * Gdx.graphics.getWidth() / 11, Gdx.graphics.getHeight() / 4));
+        spawners[0] = new ModuleSpawner(0, new Vector2(0 + 5, Gdx.graphics.getHeight() * 3 / 4 + 5), new Vector2(3 * Gdx.graphics.getWidth() / 11 - 10, Gdx.graphics.getHeight() / 4 - 10));
+        spawners[1] = new ModuleSpawner(1, new Vector2(0 + 5, Gdx.graphics.getHeight() * 2 / 4 + 5), new Vector2(3 * Gdx.graphics.getWidth() / 11 - 10, Gdx.graphics.getHeight() / 4 - 10));
+        spawners[2] = new ModuleSpawner(2, new Vector2(0 + 5, Gdx.graphics.getHeight() / 4 + 5), new Vector2(3 * Gdx.graphics.getWidth() / 11 - 10, Gdx.graphics.getHeight() / 4 - 10));
+        moduleDeleter = new ModuleDeleter("delete.png", new Vector2(5, 5), new Vector2(3 * Gdx.graphics.getWidth() / 11 - 10, Gdx.graphics.getHeight() / 4 - 10));
+        upgradeButtons[0] = new UpgradeButton(0, new Vector2(Gdx.graphics.getWidth() * 8 / 11 + 5, Gdx.graphics.getHeight() * 3 / 4 + 5), new Vector2(3 * Gdx.graphics.getWidth() / 11 - 10, Gdx.graphics.getHeight() / 4 - 10));
+        upgradeButtons[1] = new UpgradeButton(1, new Vector2(Gdx.graphics.getWidth() * 8 / 11 + 5, Gdx.graphics.getHeight() * 2 / 4 + 5), new Vector2(3 * Gdx.graphics.getWidth() / 11 - 10, Gdx.graphics.getHeight() / 4 - 10));
+        upgradeButtons[2] = new UpgradeButton(2, new Vector2(Gdx.graphics.getWidth() * 8 / 11 + 5, Gdx.graphics.getHeight() / 4 + 5), new Vector2(3 * Gdx.graphics.getWidth() / 11 - 10, Gdx.graphics.getHeight() / 4 - 10));
     }
 
     @Override
