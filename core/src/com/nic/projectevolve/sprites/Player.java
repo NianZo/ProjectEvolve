@@ -101,6 +101,10 @@ public class Player {
         bodyGroup.update(dt);
         position = bodyGroup.getPosition();
 
+        if(Double.isNaN(position.x) || position.x < 0 || position.y < 0 || position.x > 50 * 32 / ProjectEvolve.PPM || position.y > 50 * 32 / ProjectEvolve.PPM) {
+            dead = true;
+        }
+
         // Update all occupied modules
         for(int i = 0; i < numModules; i++) {
             modules[i].update();
@@ -132,6 +136,9 @@ public class Player {
             }
         }
         this.energy += energy;
+        if(this.energy < 0) {
+            this.energy = 0;
+        }
         dead = this.energy <= 0;
     }
 

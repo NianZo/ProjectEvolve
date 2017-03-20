@@ -37,7 +37,9 @@ public class Enemy {
     private int attackLevel = 1;
     private int defenseLevel = 1;
 
-    public Enemy(Player character, Vector2 position) {
+    private int AItype;
+
+    public Enemy(Player character, Vector2 position, int levelNumber) {
         player = character;
         this.position = position;
 
@@ -55,47 +57,84 @@ public class Enemy {
         lastIdleForce = new Vector2(1, 0);
 
         // Randomly choose an integer from zero to NUM_ENEMY_DESIGNS - 1 to choose an enemy design from
-        int rand = (int) Math.floor(Math.random() * ProjectEvolve.NUM_ENEMY_DESIGNS);
+        if((levelNumber + 1) % 5 != 0) {
+            int rand = (int) Math.floor(Math.random() * ProjectEvolve.NUM_ENEMY_DESIGNS);
+            AItype = (int) Math.floor(Math.random() * 5);
+            AItype = (AItype == 1) ? -1 : 1;
 
-        // Create modules based on the random number found
-        float maxSpeed = 1;
-        for(int i = 0; i < ProjectEvolve.NUM_MODULES; i++) {
-            // Only create module if the index is not invalid
-            if(ProjectEvolve.ENEMY_MODULE_DESIGNS[rand][i] != -1) {
-                // Create module and body and give the body to the module
-                int type = ProjectEvolve.ENEMY_MODULE_DESIGNS[rand][i];
-                modules[numModules] = new Module(new Texture(ProjectEvolve.MODULE_TEXTURE_NAMES[ProjectEvolve.ENEMY_MODULE_DESIGNS[rand][i]]), new Vector2(position.x + ProjectEvolve.MODULE_LOCATIONS[i][0], position.y + ProjectEvolve.MODULE_LOCATIONS[i][1]));
-                Body newBody = new Body(bodyGroup, modules[numModules].getPosition(), 16 / ProjectEvolve.PPM, 16 / ProjectEvolve.PPM, true);
-                modules[numModules].setBody(newBody);
+            // Create modules based on the random number found
+            float maxSpeed = 0.75f;
+            for (int i = 0; i < ProjectEvolve.NUM_MODULES; i++) {
+                // Only create module if the index is not invalid
+                if (ProjectEvolve.ENEMY_MODULE_DESIGNS[rand][i] != -1) {
+                    // Create module and body and give the body to the module
+                    int type = ProjectEvolve.ENEMY_MODULE_DESIGNS[rand][i];
+                    modules[numModules] = new Module(new Texture(ProjectEvolve.MODULE_TEXTURE_NAMES[ProjectEvolve.ENEMY_MODULE_DESIGNS[rand][i]]), new Vector2(position.x + ProjectEvolve.MODULE_LOCATIONS[i][0], position.y + ProjectEvolve.MODULE_LOCATIONS[i][1]));
+                    Body newBody = new Body(bodyGroup, modules[numModules].getPosition(), 16 / ProjectEvolve.PPM, 16 / ProjectEvolve.PPM, true);
+                    modules[numModules].setBody(newBody);
 
-                // Set collision information
-                short collisionIdentity = ProjectEvolve.ENEMY_BIT;
-                collisionIdentity = (short) ((type == 1) ? (collisionIdentity | ProjectEvolve.ATTACKING_BIT) : collisionIdentity);
-                collisionIdentity = (short) ((type == 2) ? (collisionIdentity | ProjectEvolve.DEFENDING_BIT) : collisionIdentity);
-                newBody.setCollisionIdentity(collisionIdentity);
+                    // Set collision information
+                    short collisionIdentity = ProjectEvolve.ENEMY_BIT;
+                    collisionIdentity = (short) ((type == 1) ? (collisionIdentity | ProjectEvolve.ATTACKING_BIT) : collisionIdentity);
+                    collisionIdentity = (short) ((type == 2) ? (collisionIdentity | ProjectEvolve.DEFENDING_BIT) : collisionIdentity);
+                    newBody.setCollisionIdentity(collisionIdentity);
 
-                newBody.setCollisionMask((short) (ProjectEvolve.PLAYER_BIT | ProjectEvolve.EDGE_BIT | ProjectEvolve.ENEMY_BIT));
+                    newBody.setCollisionMask((short) (ProjectEvolve.PLAYER_BIT | ProjectEvolve.EDGE_BIT | ProjectEvolve.ENEMY_BIT));
 
-                // Give objects the rest of the references they need
-                newBody.setUserData(this);
-                bodyGroup.addBody(newBody);
-                numModules++;
-                if(ProjectEvolve.state.getModule(i) == 0) {
-                    maxSpeed += .1f * .2f * GameState.moduleLevels[0];
-                    // TODO randomly generate module levels too
+                    // Give objects the rest of the references they need
+                    newBody.setUserData(this);
+                    bodyGroup.addBody(newBody);
+                    numModules++;
+                    if (ProjectEvolve.state.getModule(i) == 0) {
+                        maxSpeed += .1f * .2f * GameState.moduleLevels[0];
+                        // TODO randomly generate module levels too
+                    }
                 }
+                bodyGroup.setMaxVelocity(maxSpeed);
             }
-            bodyGroup.setMaxVelocity(maxSpeed);
+        } else {
+            for(int i = 0; i < ProjectEvolve.NUM_MODULES; i++) {
+                AItype = 1;
+                int type = ProjectEvolve.BOSS_MODULE_DESIGN[0][i];
+                if(type != -1) {
+                    modules[numModules] = new Module(new Texture(ProjectEvolve.MODULE_TEXTURE_NAMES[ProjectEvolve.BOSS_MODULE_DESIGN[0][i]]), new Vector2(position.x + ProjectEvolve.MODULE_LOCATIONS[i][0], position.y + ProjectEvolve.MODULE_LOCATIONS[i][1]));
+                    Body newBody = new Body(bodyGroup, modules[numModules].getPosition(), 16 / ProjectEvolve.PPM, 16 / ProjectEvolve.PPM, true);
+                    modules[numModules].setBody(newBody);
+
+                    // Set collision information
+                    short collisionIdentity = ProjectEvolve.ENEMY_BIT;
+                    collisionIdentity = (short) ((type == 1) ? (collisionIdentity | ProjectEvolve.ATTACKING_BIT) : collisionIdentity);
+                    collisionIdentity = (short) ((type == 2) ? (collisionIdentity | ProjectEvolve.DEFENDING_BIT) : collisionIdentity);
+                    newBody.setCollisionIdentity(collisionIdentity);
+
+                    newBody.setCollisionMask((short) (ProjectEvolve.PLAYER_BIT | ProjectEvolve.EDGE_BIT | ProjectEvolve.ENEMY_BIT));
+
+                    // Give objects the rest of the references they need
+                    newBody.setUserData(this);
+                    bodyGroup.addBody(newBody);
+                    numModules++;
+//                    if (ProjectEvolve.state.getModule(i) == 0) {
+//                        maxSpeed += .1f * .2f * GameState.moduleLevels[0];
+//                        // TODO randomly generate module levels too
+//                    }
+                    energy = 150;
+                }
+                bodyGroup.setMaxVelocity(.75f);
+            }
         }
     }
 
     public void update(float dt) {
         // Calculate the AI
-        //AI(dt);
+        AI(dt);
 
         // Update the bodyGroup and then grab the position from the bodyGroup
         bodyGroup.update(dt);
         position = bodyGroup.getPosition();
+
+        if(Double.isNaN(position.x) || position.x < 0 || position.y < 0 || position.x > 50 * 32 / ProjectEvolve.PPM || position.y > 50 * 32 / ProjectEvolve.PPM) {
+            setToDestroy = true;
+        }
 
         // Update all the modules
         for(int i = 0; i < numModules; i++) {
@@ -121,12 +160,12 @@ public class Enemy {
     }
 
     private void AI(float dt) {
-        float forceScaleFactor = 150;
+        float forceScaleFactor = 100;
 
         // If the player is within 5 tiles in both the x and y directions then chase the player
         if(Math.abs(player.getPosition().x - position.x) < 5 * 32 / ProjectEvolve.PPM && Math.abs(player.getPosition().y - position.y) < 5 * 32 / ProjectEvolve.PPM) {
             Vector2 direction = new Vector2(player.getPosition().x - position.x, player.getPosition().y - position.y);
-            Vector2 unitDirection = new Vector2(direction.x / direction.len(), direction.y / direction.len());
+            Vector2 unitDirection = new Vector2(AItype * direction.x / direction.len(), AItype * direction.y / direction.len());
             bodyGroup.applyForce(unitDirection.scl(dt).scl(forceScaleFactor), new Vector2(0, 0), modules[0].getBody());
         }
         // Otherwise, apply a random force close in direction to the last force (for seemingly random movement)

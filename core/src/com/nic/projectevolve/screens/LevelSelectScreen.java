@@ -85,6 +85,7 @@ public class LevelSelectScreen implements Screen{
         textButtonStyle.font = skin.getFont("default");
 
         skin.add("default", textButtonStyle);
+        skin.getFont("default").getData().setScale(2.0f);
 
         for(int i = 0; i < 5; i++) {
             levelButtons[0][i] = new CustomTextButton(ProjectEvolve.LEVEL_SELECT_NAMES[i], skin);
@@ -135,7 +136,8 @@ public class LevelSelectScreen implements Screen{
     }
 
     public void update() {
-        Vector2 touchLocation = new Vector2((Gdx.input.getX() - gamePort.getLeftGutterWidth()) * inputScaleAdjuster.x / ProjectEvolve.PPM, (-Gdx.input.getY() + gamePort.getTopGutterHeight() + gamePort.getScreenHeight()) * inputScaleAdjuster.y / ProjectEvolve.PPM);
+        Vector2 touchLocation = new Vector2(Gdx.input.getX() / ProjectEvolve.PPM, (Gdx.graphics.getHeight() - Gdx.input.getY()) / ProjectEvolve.PPM);
+        //Vector2 touchLocation = new Vector2((Gdx.input.getX() - gamePort.getLeftGutterWidth()) * inputScaleAdjuster.x / ProjectEvolve.PPM, (-Gdx.input.getY() + gamePort.getTopGutterHeight() + gamePort.getScreenHeight()) * inputScaleAdjuster.y / ProjectEvolve.PPM);
         for(int i = 0; i < ProjectEvolve.NUM_LEVELS; i++) {
             if(levelButtons[1][i] != null) {
                 levelButtons[1][i].update(touchLocation);

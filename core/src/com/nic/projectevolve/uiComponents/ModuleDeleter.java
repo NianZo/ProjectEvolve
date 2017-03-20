@@ -37,7 +37,7 @@ public class ModuleDeleter {
 
 
         createTextField();
-        TextButton description = new TextButton("Delete Module", skin);
+        TextButton description = new TextButton("Delete Cell", skin);
         description.setPosition(position.x, position.y);
         description.setSize(size.x - size.y, size.y);
         stage.addActor(description);

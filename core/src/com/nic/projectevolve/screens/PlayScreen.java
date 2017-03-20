@@ -115,7 +115,7 @@ public class PlayScreen implements Screen{
         enemies = new ArrayList<Enemy>();
         for(MapObject object : map.getLayers().get(3).getObjects().getByType(RectangleMapObject.class)) {
             Rectangle rect = ((RectangleMapObject) object).getRectangle();
-            Enemy enemy = new Enemy(player, new Vector2(rect.getX() / ProjectEvolve.PPM, rect.getY() / ProjectEvolve.PPM));
+            Enemy enemy = new Enemy(player, new Vector2(rect.getX() / ProjectEvolve.PPM, rect.getY() / ProjectEvolve.PPM), levelNumber);
             enemies.add(enemy);
             enemy.update(0);
         }
@@ -132,10 +132,12 @@ public class PlayScreen implements Screen{
             gameCam.position.y = player.getPosition().y;
         }
 
-        music = game.manager.get("sounds/play_theme.ogg", Music.class);
+        music = ProjectEvolve.manager.get("sounds/play_theme.ogg", Music.class);
         music.setLooping(true);
         music.setVolume(0.33f);
         music.play();
+
+
     }
 
     private void createButton() {
@@ -168,7 +170,7 @@ public class PlayScreen implements Screen{
         skin.add("default", textButtonStyle);
 
         screenBlank = new TextButton("", skin);
-        screenBlank.setText("Begin!");
+        screenBlank.setText("Destroy the Other Cells!");
         screenBlank.setPosition(0, 0);
         screenBlank.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 
@@ -255,6 +257,7 @@ public class PlayScreen implements Screen{
         if(player.getPosition().y >= gamePort.getWorldHeight() / 2 && player.getPosition().y <= (ProjectEvolve.MAP_TILE_HEIGHT * 32 / ProjectEvolve.PPM - gamePort.getWorldHeight() / 2)) {
             gameCam.position.y = player.getPosition().y;
         }
+        System.out.println(player.getPosition().x);
 
         // Update the gameCame
         gameCam.update();
@@ -336,7 +339,7 @@ public class PlayScreen implements Screen{
         hud.dispose();
         player.dispose();
         music.stop();
-        music.dispose();
+        //music.dispose();
         //GameState.unlockedLevels[levelNumber + 1] = 1;
         ProjectEvolve.state.saveStateToFile();
     }

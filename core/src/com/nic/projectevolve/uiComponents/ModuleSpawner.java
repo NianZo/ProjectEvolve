@@ -1,5 +1,7 @@
 package com.nic.projectevolve.uiComponents;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -48,7 +50,7 @@ public class ModuleSpawner {
         this.type = type;
 
         transientSprite = new Sprite(texture);
-        transientSprite.setBounds(0, 0, 50 / ProjectEvolve.PPM, 50 / ProjectEvolve.PPM);
+        transientSprite.setBounds(0, 0, Gdx.graphics.getHeight() / 10 / ProjectEvolve.PPM, Gdx.graphics.getHeight() / 10 / ProjectEvolve.PPM);
         transientSprite.setAlpha(0.5f);
 
         this.position = position;
@@ -62,10 +64,10 @@ public class ModuleSpawner {
         description.setPosition(position.x, position.y);
         description.setSize(size.x - size.y, size.y);
         stage.addActor(description);
-        sprite.setPosition((position.x + size.y / 2) / ProjectEvolve.PPM - sprite.getHeight() / 2 + description.getWidth() / ProjectEvolve.PPM, (position.y + size.y / 2) / ProjectEvolve.PPM - sprite.getHeight() / 2);
+        sprite.setPosition((position.x + size.y / 2) / ProjectEvolve.PPM - sprite.getHeight() / 2 + description.getWidth() / ProjectEvolve.PPM, (position.y + size.y / 2) /  ProjectEvolve.PPM - sprite.getHeight() / 2);
 
         backgroundSprite = new Sprite(new Texture(ProjectEvolve.BACKGROUND_TEXTURE_NAMES[3]));
-        backgroundSprite.setPosition(position.x / ProjectEvolve.PPM, position.y / ProjectEvolve.PPM);
+        backgroundSprite.setPosition(position.x/ ProjectEvolve.PPM, position.y / ProjectEvolve.PPM);
         backgroundSprite.setSize(size.x / ProjectEvolve.PPM, size.y / ProjectEvolve.PPM);
     }
 
@@ -78,7 +80,7 @@ public class ModuleSpawner {
         skin.add("default", font);
 
         // Create texture for background of buttons
-        Pixmap pixmap = new Pixmap(ProjectEvolve.V_WIDTH / 4, ProjectEvolve.V_HEIGHT / 10, Pixmap.Format.RGBA8888);
+        Pixmap pixmap = new Pixmap(Gdx.graphics.getWidth() / 4, Gdx.graphics.getHeight() / 10, Pixmap.Format.RGBA8888);
         pixmap.setColor(Color.WHITE);
         pixmap.fill();
         skin.add("background", new Texture(pixmap));
@@ -101,6 +103,7 @@ public class ModuleSpawner {
                     touchPosition.y > position.y / ProjectEvolve.PPM &&
                     touchPosition.y < (position.y + size.y) / ProjectEvolve.PPM) {
                 pickedUp = true;
+                ProjectEvolve.manager.get("sounds/water_sfx.ogg", Sound.class).play();
             }
         }
     }

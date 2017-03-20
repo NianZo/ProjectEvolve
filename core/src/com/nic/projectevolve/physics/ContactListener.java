@@ -1,5 +1,6 @@
 package com.nic.projectevolve.physics;
 
+import com.badlogic.gdx.audio.Sound;
 import com.nic.projectevolve.GameState;
 import com.nic.projectevolve.ProjectEvolve;
 import com.nic.projectevolve.sprites.Enemy;
@@ -13,6 +14,10 @@ import com.nic.projectevolve.sprites.Player;
  */
 public class ContactListener {
     public static void contact(Body a, Body b) {
+        if((a.getCollisionIdentity() & ProjectEvolve.PLAYER_BIT) != 0 || (b.getCollisionIdentity() & ProjectEvolve.PLAYER_BIT) != 0) {
+            ProjectEvolve.manager.get("sounds/water_sfx.ogg", Sound.class).play();
+        }
+
         if((a.getCollisionIdentity() & ProjectEvolve.PLAYER_BIT) != 0 && (b.getCollisionIdentity() & ProjectEvolve.ENEMY_BIT) != 0) {
             Player player = (Player) a.getUserData();
             Enemy enemy = (Enemy) b.getUserData();
@@ -45,7 +50,7 @@ public class ContactListener {
 
             // Add energy and resource if enemy dies
             if(enemy.isDead()) {
-                player.addEnergy(100);
+                player.addEnergy(50);
                 GameState.geneticMaterial++;
                 if(GameState.geneticMaterial > 255) {
                     GameState.geneticMaterial = 255;

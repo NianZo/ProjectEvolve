@@ -76,7 +76,7 @@ public class CreatorScreen implements Screen{
         batch = new SpriteBatch();
 
         gameCam = new OrthographicCamera();
-        gamePort = new FitViewport(ProjectEvolve.V_WIDTH / ProjectEvolve.PPM, ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM, gameCam);
+        gamePort = new FitViewport(Gdx.graphics.getWidth() / ProjectEvolve.PPM, Gdx.graphics.getHeight() / ProjectEvolve.PPM, gameCam);
 
         gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
 
@@ -86,7 +86,7 @@ public class CreatorScreen implements Screen{
 
         backgroundSprite = new Sprite(new Texture(ProjectEvolve.BACKGROUND_TEXTURE_NAMES[2]));
         backgroundSprite.setPosition(0, 0);
-        backgroundSprite.setSize(ProjectEvolve.V_WIDTH / ProjectEvolve.PPM, ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM);
+        backgroundSprite.setSize(Gdx.graphics.getWidth() / ProjectEvolve.PPM, Gdx.graphics.getHeight() / ProjectEvolve.PPM);
     }
 
     private void createButtons() {
@@ -132,7 +132,7 @@ public class CreatorScreen implements Screen{
         menuButton.setSize(new Vector2(Gdx.graphics.getWidth() * 3 / 11 - 10, Gdx.graphics.getHeight() / 4 - 10));
         menuButton.setPosition(new Vector2(Gdx.graphics.getWidth() * 8 / 11 + 5, 5));
 
-        creatorMatrix = new CreatorMatrix("hexagon_grid.png", new Vector2(ProjectEvolve.V_WIDTH / 2 / ProjectEvolve.PPM, ProjectEvolve.V_HEIGHT / 2 / ProjectEvolve.PPM));
+        creatorMatrix = new CreatorMatrix("hexagon_grid.png", new Vector2(Gdx.graphics.getWidth() / 2 / ProjectEvolve.PPM, Gdx.graphics.getHeight() / 2 / ProjectEvolve.PPM), new Vector2(Gdx.graphics.getHeight() * 3 / 4, Gdx.graphics.getHeight() * 3 / 4));
 
         // Load module locations from gameState
         for(int i = 0; i < ProjectEvolve.NUM_MODULES; i++) {
@@ -143,14 +143,14 @@ public class CreatorScreen implements Screen{
             }
         }
 
-        resourceButton = new TextButton("Genetic Material: "+GameState.geneticMaterial, skin);
+        resourceButton = new TextButton("Nucleotides: "+GameState.geneticMaterial, skin);
         resourceButton.setSize(Gdx.graphics.getWidth() / 3, Gdx.graphics.getHeight() / 10);
         resourceButton.setPosition(Gdx.graphics.getWidth() / 2 - resourceButton.getWidth() / 2, Gdx.graphics.getHeight() - resourceButton.getHeight());
         stage.addActor(resourceButton);
 
-        spawners[0] = new ModuleSpawner(0, new Vector2(0 + 5, Gdx.graphics.getHeight() * 3 / 4 + 5), new Vector2(3 * Gdx.graphics.getWidth() / 11 - 10, Gdx.graphics.getHeight() / 4 - 10));
-        spawners[1] = new ModuleSpawner(1, new Vector2(0 + 5, Gdx.graphics.getHeight() * 2 / 4 + 5), new Vector2(3 * Gdx.graphics.getWidth() / 11 - 10, Gdx.graphics.getHeight() / 4 - 10));
-        spawners[2] = new ModuleSpawner(2, new Vector2(0 + 5, Gdx.graphics.getHeight() / 4 + 5), new Vector2(3 * Gdx.graphics.getWidth() / 11 - 10, Gdx.graphics.getHeight() / 4 - 10));
+        spawners[0] = new ModuleSpawner(0, new Vector2(5, Gdx.graphics.getHeight() * 3 / 4 + 5), new Vector2(3 * Gdx.graphics.getWidth() / 11 - 10, Gdx.graphics.getHeight() / 4 - 10));
+        spawners[1] = new ModuleSpawner(1, new Vector2(5, Gdx.graphics.getHeight() * 2 / 4 + 5), new Vector2(3 * Gdx.graphics.getWidth() / 11 - 10, Gdx.graphics.getHeight() / 4 - 10));
+        spawners[2] = new ModuleSpawner(2, new Vector2(5, Gdx.graphics.getHeight() / 4 + 5), new Vector2(3 * Gdx.graphics.getWidth() / 11 - 10, Gdx.graphics.getHeight() / 4 - 10));
         moduleDeleter = new ModuleDeleter("delete.png", new Vector2(5, 5), new Vector2(3 * Gdx.graphics.getWidth() / 11 - 10, Gdx.graphics.getHeight() / 4 - 10));
         upgradeButtons[0] = new UpgradeButton(0, new Vector2(Gdx.graphics.getWidth() * 8 / 11 + 5, Gdx.graphics.getHeight() * 3 / 4 + 5), new Vector2(3 * Gdx.graphics.getWidth() / 11 - 10, Gdx.graphics.getHeight() / 4 - 10));
         upgradeButtons[1] = new UpgradeButton(1, new Vector2(Gdx.graphics.getWidth() * 8 / 11 + 5, Gdx.graphics.getHeight() * 2 / 4 + 5), new Vector2(3 * Gdx.graphics.getWidth() / 11 - 10, Gdx.graphics.getHeight() / 4 - 10));
@@ -165,7 +165,7 @@ public class CreatorScreen implements Screen{
     private void handleInput() {
         // Pre-calculate the touch location so it only needs to be calculated once
         //Vector2 touchLocation = new Vector2(Gdx.input.getX() / ProjectEvolve.PPM, -Gdx.input.getY() / ProjectEvolve.PPM + ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM);
-        Vector2 touchLocation = new Vector2((Gdx.input.getX() - gamePort.getLeftGutterWidth()) * inputScaleAdjuster.x / ProjectEvolve.PPM, (-Gdx.input.getY() + gamePort.getTopGutterHeight() + gamePort.getScreenHeight()) * inputScaleAdjuster.y / ProjectEvolve.PPM);
+        Vector2 touchLocation = new Vector2((Gdx.input.getX() - gamePort.getLeftGutterWidth()) * inputScaleAdjuster.x / ProjectEvolve.PPM, (-Gdx.input.getY() + gamePort.getTopGutterHeight() + Gdx.graphics.getHeight()) * inputScaleAdjuster.y / ProjectEvolve.PPM);
 
         // Update UpgradeButtons here since they need touchLocation
         upgradeButtons[0].update(touchLocation);
@@ -199,10 +199,10 @@ public class CreatorScreen implements Screen{
             upgradeButtons[0].click(touchLocation);
             upgradeButtons[1].click(touchLocation);
             upgradeButtons[2].click(touchLocation);
-            System.out.print("Genetic Material: ");
-            System.out.println(GameState.geneticMaterial);
-            System.out.print("Module Levels: ");
-            System.out.println(GameState.moduleLevels[0]);
+//            System.out.print("Genetic Material: ");
+//            System.out.println(GameState.geneticMaterial);
+//            System.out.print("Module Levels: ");
+//            System.out.println(GameState.moduleLevels[0]);
         }
 
         // Handle if the screen is touched (not necessarily just touched) (mostly transient move operations)
@@ -278,7 +278,7 @@ public class CreatorScreen implements Screen{
 
     private void update() {
         handleInput();
-        resourceButton.setText("Genetic Material: "+GameState.geneticMaterial);
+        resourceButton.setText("Nucleotides: "+GameState.geneticMaterial);
     }
 
     @Override
@@ -338,8 +338,8 @@ public class CreatorScreen implements Screen{
     public void resize(int width, int height) {
         gamePort.update(width, height);
         //menuButton.setPosition(Gdx.graphics.getWidth() - menuButton.getWidth(), 0);
-        inputScaleAdjuster.x = (float) ProjectEvolve.V_WIDTH / (width - gamePort.getLeftGutterWidth() - gamePort.getRightGutterWidth());
-        inputScaleAdjuster.y = (float) ProjectEvolve.V_HEIGHT / (height - gamePort.getTopGutterHeight() - gamePort.getBottomGutterHeight());
+        //inputScaleAdjuster.x = (float) ProjectEvolve.V_WIDTH / (width - gamePort.getLeftGutterWidth() - gamePort.getRightGutterWidth());
+        //inputScaleAdjuster.y = (float) ProjectEvolve.V_HEIGHT / (height - gamePort.getTopGutterHeight() - gamePort.getBottomGutterHeight());
     }
 
     @Override

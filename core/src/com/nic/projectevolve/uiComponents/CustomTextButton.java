@@ -1,5 +1,6 @@
 package com.nic.projectevolve.uiComponents;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -72,10 +73,14 @@ public class CustomTextButton {
     }
 
     public boolean click(Vector2 touchPosition) {
-        return (active && touchPosition.x > position.x / ProjectEvolve.PPM &&
+        if(active && touchPosition.x > position.x / ProjectEvolve.PPM &&
                 touchPosition.x < (position.x + size.x) / ProjectEvolve.PPM &&
                 touchPosition.y > position.y / ProjectEvolve.PPM &&
-                touchPosition.y < (position.y + size.y) / ProjectEvolve.PPM);
+                touchPosition.y < (position.y + size.y) / ProjectEvolve.PPM) {
+            ProjectEvolve.manager.get("sounds/water_sfx.ogg", Sound.class).play();
+            return true;
+        }
+        return false;
     }
 
     public void setActive(boolean val) {

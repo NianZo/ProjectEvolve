@@ -42,6 +42,7 @@ public class MenuScreen implements Screen {
     public MenuScreen(ProjectEvolve game) {
         create();
         this.game = game;
+        ProjectEvolve.setScl((int) (Gdx.graphics.getHeight() / 8));
 
         //OrthographicCamera gameCam;
         gameCam = new OrthographicCamera();
@@ -49,6 +50,9 @@ public class MenuScreen implements Screen {
 
         //gameCam.position.set(gamePort.getWorldWidth() / 2, gamePort.getWorldHeight() / 2, 0);
         inputScaleAdjuster = new Vector2(1, 1);
+        gamePort.update(ProjectEvolve.V_WIDTH, ProjectEvolve.V_HEIGHT);
+        inputScaleAdjuster.x = (float) ProjectEvolve.V_WIDTH / (ProjectEvolve.V_WIDTH - gamePort.getLeftGutterWidth() - gamePort.getRightGutterWidth());
+        inputScaleAdjuster.y = (float) ProjectEvolve.V_HEIGHT / (ProjectEvolve.V_HEIGHT - gamePort.getTopGutterHeight() - gamePort.getBottomGutterHeight());
 
         backgroundSprite = new Sprite(new Texture(ProjectEvolve.BACKGROUND_TEXTURE_NAMES[1]));
         backgroundSprite.setPosition(-ProjectEvolve.V_WIDTH / ProjectEvolve.PPM / 2, -ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM / 2);
@@ -85,6 +89,7 @@ public class MenuScreen implements Screen {
         textButtonStyle.font = skin.getFont("default");
 
         skin.add("default", textButtonStyle);
+        skin.getFont("default").getData().setScale(2.0f);
 
         CustomTextButton playButtonB;
         playButtonB = new CustomTextButton("Select Level", skin);
@@ -98,7 +103,7 @@ public class MenuScreen implements Screen {
         playButton.setPosition(new Vector2(Gdx.graphics.getWidth() / 2 - playButtonB.getWidth() / 2 + 5, Gdx.graphics.getHeight() / 2 + 1 * playButtonB.getHeight() / 2 + 5));
 
 
-        creatorButton = new CustomTextButton(" Creature Creator", skin);
+        creatorButton = new CustomTextButton("Cell Arranger", skin);
         creatorButton.setSize(new Vector2(Gdx.graphics.getWidth() / 3 - 10, Gdx.graphics.getHeight() / 5 - 10));
         creatorButton.setPosition(new Vector2(Gdx.graphics.getWidth() / 2 - playButtonB.getWidth() / 2 + 5, Gdx.graphics.getHeight() / 2 - 1 * playButtonB.getHeight() / 2 + 5));
 
@@ -113,8 +118,11 @@ public class MenuScreen implements Screen {
     }
 
     public void update() {
-        Vector2 touchLocation = new Vector2((Gdx.input.getX() - gamePort.getLeftGutterWidth()) * inputScaleAdjuster.x / ProjectEvolve.PPM, (-Gdx.input.getY() + gamePort.getTopGutterHeight() + gamePort.getScreenHeight()) * inputScaleAdjuster.y / ProjectEvolve.PPM);
+        Vector2 touchLocation = new Vector2(Gdx.input.getX() / ProjectEvolve.PPM, Gdx.graphics.getHeight() / ProjectEvolve.PPM - Gdx.input.getY() / ProjectEvolve.PPM);
+        //Vector2 touchLocation = new Vector2((Gdx.input.getX() - gamePort.getLeftGutterWidth()) * inputScaleAdjuster.x / ProjectEvolve.PPM, (-Gdx.input.getY() + gamePort.getTopGutterHeight() + gamePort.getScreenHeight()) * inputScaleAdjuster.y / ProjectEvolve.PPM);
         playButton.update(touchLocation);
+        //System.out.println(touchLocation.x);
+        //System.out.println(touchLocation.y);
         creatorButton.update(touchLocation);
         infoButton.update(touchLocation);
         if(Gdx.input.justTouched() && playButton.click(touchLocation)) {

@@ -1,5 +1,7 @@
 package com.nic.projectevolve.uiComponents;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -43,7 +45,7 @@ public class CreatorMatrix {
     private int numSockets = ProjectEvolve.NUM_MODULES;
     private short[] occupied;
 
-    public CreatorMatrix(String textureName, Vector2 position) {
+    public CreatorMatrix(String textureName, Vector2 position, Vector2 size) {
         sockets = new Circle[numSockets];
         occupied = new short[numSockets];
 
@@ -55,12 +57,13 @@ public class CreatorMatrix {
         // Handles creation of hexagon matrix sprite
         Texture texture = new Texture(textureName);
         sprite = new Sprite(texture);
-        sprite.setBounds(0, 0, 300 / ProjectEvolve.PPM, 300 / ProjectEvolve.PPM);
+        sprite.setBounds(0, 0, size.x / ProjectEvolve.PPM, size.y / ProjectEvolve.PPM);
         sprite.setPosition(position.x - sprite.getWidth() / 2, position.y - sprite.getHeight() / 2);
 
         // Handles creation and positioning of sockets to drop modules into
         for(int i = 0; i < numSockets; i++) {
-            sockets[i] = new Circle(new Vector2(position.x + SOCKETLOCATIONS[i][0] / ProjectEvolve.PPM, position.y + SOCKETLOCATIONS[i][1] / ProjectEvolve.PPM), SOCKETRADIUS);
+//            sockets[i] = new Circle(new Vector2(position.x + SOCKETLOCATIONS[i][0] / ProjectEvolve.PPM, position.y + SOCKETLOCATIONS[i][1] / ProjectEvolve.PPM), SOCKETRADIUS);
+            sockets[i] = new Circle(new Vector2(position.x + ProjectEvolve.SOCKET_LOCATIONS[i][0] / ProjectEvolve.PPM, position.y + ProjectEvolve.SOCKET_LOCATIONS[i][1] / ProjectEvolve.PPM), Gdx.graphics.getHeight() * 1 / 16 / ProjectEvolve.PPM);
         }
     }
 
@@ -102,13 +105,14 @@ public class CreatorMatrix {
 
     public void actuallyDrop(int index, int socket, int type) {
         occupied[socket] = (short) index;
-
+        ProjectEvolve.manager.get("sounds/water_sfx.ogg", Sound.class).play();
         ProjectEvolve.state.setModule(socket, (short) type);
     }
 
     public void removeModule(int index) {
         occupied[index] = -1;
         ProjectEvolve.state.setModule(index, (short) -1);
+        ProjectEvolve.manager.get("sounds/water_sfx.ogg", Sound.class).play();
     }
 
     // Socket is the socket we want something adjacent to, starting socket is where the module started

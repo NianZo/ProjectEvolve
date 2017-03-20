@@ -10,10 +10,10 @@
  </layer>
  <layer name="Tile Layer 2" width="50" height="50">
   <data encoding="base64" compression="zlib">
-   eJztlssOhDAMAyv+/6NRDlxA2t0ktXG9HanHFg99JMcY49jjK9k5CplRrJ7/zur57zg4XDg4XDg4BC4egYND4OIRODgEaAfWfv+7R+ZuVfrDap7qPJRHNlN3v2eelzc9VHB7d7eHBg59Sae/UvKueDD3r5qpUqtQLp1/m8nl5oGi66ECYy+UcHAIHBwCF49gezzXmA2zliHPJssD+d4x6zLybqn3Sb/mq2RS9Oh+BwWjd9g1RAsHD9ee18ljRRcHj0/1aVbfyKh52cFYr7umyzgBJ2UEJQ==
+   eJztWlsOAyEINNt373/g1qQkhtDyEgubncS/igwgAtuttbY51oVZ2j0eXaw6PxuPm3IP/v1MblKdowDcquqPYeGTSX+Mzqc6BwDHpQIHwLXRHM7/VMqAbz6p5AsA9kk1XwCwTyr6AgA+qcyho/OIjKf7e50+6xF4TjSPMXYjz7HyGO3M2RpilzsHZFr8ZuWB65xf9wt+y93BMX9quXjjqus4K0eM9bpWZvT9WAXwZWQuWQHpHcyOvfGoHFs9X1vrxL43C29LvQtv1YpYlNqK6qW4ffj9i/IJxIrEVhQPqY2j62RN/qF4SPWa+Y5T0Ngpcz8otRPOVVV7KeyLihw6Rh6Z4kmLVX3aCuyttvLwiKpPNHK9PMacN5uLpr+DO2KdM0R9I7HYxztniMjXYy6Vyo/ua/F8SDInstgoOmetmuuvyL3a77UWHG9ILuyBB67ds8wNtMjcR2lgmTNkhGfOkAVUX+v1ieXt9p7D/S9DogfW2yuPkkktTnepHlHyvDJfbTYIEQ==
   </data>
  </layer>
- <objectgroup name="Edge">
+ <objectgroup name="Edge" visible="0">
   <object id="1" x="0" y="1568" width="800" height="32"/>
   <object id="2" x="800" y="1568" width="800" height="32"/>
   <object id="5" x="1568" y="0" width="32" height="768"/>

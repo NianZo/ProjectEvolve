@@ -45,7 +45,7 @@ public class Hud {
         energyTitleLabel = new Label("Energy", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         levelLabel = new Label("1", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         levelTitleLabel = new Label("LEVEL", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        scoreTitleLabel = new Label("SCORE", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        scoreTitleLabel = new Label("Nucleotides", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
 
         // Layout the HUD in the table
         table.top();

@@ -1,5 +1,6 @@
 package com.nic.projectevolve.uiComponents;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -31,11 +32,11 @@ public class DraggableImage {
 
         texture = new Texture(ProjectEvolve.MODULE_TEXTURE_NAMES[type]);
         sprite = new Sprite(texture);
-        sprite.setBounds(0, 0, 50 / ProjectEvolve.PPM, 50 / ProjectEvolve.PPM);
+        sprite.setBounds(0, 0, Gdx.graphics.getHeight() * 2 / 16 / ProjectEvolve.PPM, Gdx.graphics.getHeight() * 2 / 16 / ProjectEvolve.PPM);
         sprite.setPosition(position.x, position.y);
 
         transientSprite = new Sprite(texture);
-        transientSprite.setBounds(0, 0, 50 / ProjectEvolve.PPM, 50 / ProjectEvolve.PPM);
+        transientSprite.setBounds(0, 0, Gdx.graphics.getHeight() * 2 / 16 / ProjectEvolve.PPM, Gdx.graphics.getHeight() * 2 / 16 / ProjectEvolve.PPM);
         transientSprite.setAlpha(0.5f);
         transientSprite.setPosition(position.x, position.y);
 
@@ -47,9 +48,9 @@ public class DraggableImage {
 
     public void tryPickUp(Vector2 touchPosition) {
         if (touchPosition.x > position.x &&
-                touchPosition.x < position.x + 48 / ProjectEvolve.PPM &&
+                touchPosition.x < position.x + Gdx.graphics.getHeight() / 8 / ProjectEvolve.PPM &&
                 touchPosition.y > position.y &&
-                touchPosition.y < position.y + 48 / ProjectEvolve.PPM) {
+                touchPosition.y < position.y + Gdx.graphics.getHeight() / 8 / ProjectEvolve.PPM) {
 
             pickedUp = true;
 
@@ -59,7 +60,7 @@ public class DraggableImage {
 
     public void transientMove(Vector2 position) {
         if (pickedUp) {
-            transientPosition = new Vector2(position.x - 24 / ProjectEvolve.PPM, position.y - 24 / ProjectEvolve.PPM);
+            transientPosition = new Vector2(position.x - Gdx.graphics.getHeight() / 16 / ProjectEvolve.PPM, position.y - Gdx.graphics.getHeight() / 16 / ProjectEvolve.PPM);
             transientSprite.setPosition(transientPosition.x, transientPosition.y);
         }
     }

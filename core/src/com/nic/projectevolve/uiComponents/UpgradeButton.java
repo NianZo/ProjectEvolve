@@ -1,5 +1,6 @@
 package com.nic.projectevolve.uiComponents;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
@@ -91,6 +92,7 @@ public class UpgradeButton {
             //pickedUp = true;
             GameState.geneticMaterial -= ProjectEvolve.UPGRADE_COSTS[type][GameState.moduleLevels[type]];
             GameState.moduleLevels[type]++;
+            ProjectEvolve.manager.get("sounds/water_sfx.ogg", Sound.class).play();
         }
 
     }
