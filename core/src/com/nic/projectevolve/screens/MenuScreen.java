@@ -42,7 +42,7 @@ public class MenuScreen implements Screen {
     public MenuScreen(ProjectEvolve game) {
         create();
         this.game = game;
-        ProjectEvolve.setScl((int) (Gdx.graphics.getHeight() / 8));
+        ProjectEvolve.setScl(Gdx.graphics.getHeight() / 8);
 
         //OrthographicCamera gameCam;
         gameCam = new OrthographicCamera();

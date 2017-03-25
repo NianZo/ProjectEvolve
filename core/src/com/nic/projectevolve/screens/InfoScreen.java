@@ -10,17 +10,17 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.nic.projectevolve.ProjectEvolve;
 import com.nic.projectevolve.uiComponents.CustomTextButton;
 
 /**
  * Created by nic on 2/5/17.
+ *
+ * A screen class holding a background sprite with information about the game on it.
  */
 public class InfoScreen implements Screen {
 
@@ -34,8 +34,8 @@ public class InfoScreen implements Screen {
 
     private CustomTextButton menuButton;
 
-    public InfoScreen(ProjectEvolve inputgame) {
-        game = inputgame;
+    public InfoScreen(ProjectEvolve inputGame) {
+        game = inputGame;
 
         gameCam = new OrthographicCamera();
         gamePort = new FitViewport(ProjectEvolve.V_WIDTH / ProjectEvolve.PPM, ProjectEvolve.V_HEIGHT / ProjectEvolve.PPM, gameCam);

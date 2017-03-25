@@ -4,6 +4,8 @@ import com.badlogic.gdx.math.Vector2;
 
 /**
  * Created by nic on 10/30/16.
+ *
+ * Geometry class used with the Physics engine
  */
 public class Circle {
     private Vector2 position;
@@ -26,7 +28,7 @@ public class Circle {
         this.position = position;
     }
 
-    public void setRadius(float radius) {
-        this.radius = radius;
-    }
+//    public void setRadius(float radius) {
+//        this.radius = radius;
+//    }
 }

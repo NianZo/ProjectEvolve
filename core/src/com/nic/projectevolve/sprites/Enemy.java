@@ -34,10 +34,7 @@ public class Enemy {
     // State variable used in the AI algorithm
     private Vector2 lastIdleForce;
 
-    private int attackLevel = 1;
-    private int defenseLevel = 1;
-
-    private int AItype;
+    private int AI_type;
 
     public Enemy(Player character, Vector2 position, int levelNumber) {
         player = character;
@@ -59,8 +56,8 @@ public class Enemy {
         // Randomly choose an integer from zero to NUM_ENEMY_DESIGNS - 1 to choose an enemy design from
         if((levelNumber + 1) % 5 != 0) {
             int rand = (int) Math.floor(Math.random() * ProjectEvolve.NUM_ENEMY_DESIGNS);
-            AItype = (int) Math.floor(Math.random() * 5);
-            AItype = (AItype == 1) ? -1 : 1;
+            AI_type = (int) Math.floor(Math.random() * 5);
+            AI_type = (AI_type == 1) ? -1 : 1;
 
             // Create modules based on the random number found
             float maxSpeed = 0.75f;
@@ -87,14 +84,13 @@ public class Enemy {
                     numModules++;
                     if (ProjectEvolve.state.getModule(i) == 0) {
                         maxSpeed += .1f * .2f * GameState.moduleLevels[0];
-                        // TODO randomly generate module levels too
                     }
                 }
                 bodyGroup.setMaxVelocity(maxSpeed);
             }
         } else {
             for(int i = 0; i < ProjectEvolve.NUM_MODULES; i++) {
-                AItype = 1;
+                AI_type = 1;
                 int type = ProjectEvolve.BOSS_MODULE_DESIGN[0][i];
                 if(type != -1) {
                     modules[numModules] = new Module(new Texture(ProjectEvolve.MODULE_TEXTURE_NAMES[ProjectEvolve.BOSS_MODULE_DESIGN[0][i]]), new Vector2(position.x + ProjectEvolve.MODULE_LOCATIONS[i][0], position.y + ProjectEvolve.MODULE_LOCATIONS[i][1]));
@@ -115,7 +111,6 @@ public class Enemy {
                     numModules++;
 //                    if (ProjectEvolve.state.getModule(i) == 0) {
 //                        maxSpeed += .1f * .2f * GameState.moduleLevels[0];
-//                        // TODO randomly generate module levels too
 //                    }
                     energy = 150;
                 }
@@ -165,7 +160,7 @@ public class Enemy {
         // If the player is within 5 tiles in both the x and y directions then chase the player
         if(Math.abs(player.getPosition().x - position.x) < 5 * 32 / ProjectEvolve.PPM && Math.abs(player.getPosition().y - position.y) < 5 * 32 / ProjectEvolve.PPM) {
             Vector2 direction = new Vector2(player.getPosition().x - position.x, player.getPosition().y - position.y);
-            Vector2 unitDirection = new Vector2(AItype * direction.x / direction.len(), AItype * direction.y / direction.len());
+            Vector2 unitDirection = new Vector2(AI_type * direction.x / direction.len(), AI_type * direction.y / direction.len());
             bodyGroup.applyForce(unitDirection.scl(dt).scl(forceScaleFactor), new Vector2(0, 0), modules[0].getBody());
         }
         // Otherwise, apply a random force close in direction to the last force (for seemingly random movement)
@@ -175,10 +170,6 @@ public class Enemy {
             PhysicsMath.clampVectorBelow(lastIdleForce, 1, true, true, true, true);
             bodyGroup.applyForce(lastIdleForce.scl(dt).scl(150), new Vector2(0, 0), modules[0].getBody());
         }
-    }
-
-    public void hit() {
-        setToDestroy = true;
     }
 
     public void addEnergy(int energy) {
@@ -191,11 +182,11 @@ public class Enemy {
     }
 
     public int getAttackLevel() {
-        return attackLevel;
+        return 1;
     }
 
     public int getDefenseLevel() {
-        return defenseLevel;
+        return 1;
     }
 
     public void dispose() {

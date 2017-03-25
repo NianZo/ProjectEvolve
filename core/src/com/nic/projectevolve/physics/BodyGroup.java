@@ -139,7 +139,7 @@ public class BodyGroup {
             velocity = PhysicsMath.clampVectorAbove(velocity, .2f, force.x > 0, force.y > 0, force.x < 0, force.y < 0);
 
             // UnUpdate the position of the body to be outside of collision
-            position.x -= velocity.x * Math.abs(force.x) / force.len() * lastDt; // TODO might need to not dot with force
+            position.x -= velocity.x * Math.abs(force.x) / force.len() * lastDt;
             position.y -= velocity.y * Math.abs(force.y) / force.len() * lastDt;
             rotation -= angularVelocity * lastDt;
             //This probably will work, but there are issues with applying force by touch

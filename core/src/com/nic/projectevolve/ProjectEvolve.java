@@ -21,11 +21,11 @@ public class ProjectEvolve extends Game {
 	public static final float MAX_VELOCITY = 3;
 	public static final float MAX_ANGULAR_VELOCITY = 90;
 
-	// TODO needs to be based on screen size like creator matrix is
+	// Set based off of screen size when app initialized
 	public static int scl = 540 / 8;
-	private static int sclx = (int) Math.sqrt(2.0) * scl;
+	private static int scl_x = (int) Math.sqrt(2.0) * scl;
 	public static final int[][] MODULE_LOCATIONS = {{0,0},{0,32},{28,16},{28,-16},{0,-32},{-28,-16},{-28,16},{0,64},{28,48},{56,32},{56,0},{56,-32},{28,-48},{0,-64},{-28,-48},{-56,-32},{-56,0},{-56,32},{-28,48}};
-	public static int[][] SOCKET_LOCATIONS = {{0,0},{0,scl},{sclx,scl/2},{sclx,-scl/2},{0,-scl},{-sclx,-scl/2},{-sclx,scl/2},{0,scl*2},{sclx,scl*3/2},{sclx*2,scl},{sclx*2,0},{sclx*2,-scl},{sclx,-scl*3/2},{0,-scl*2},{-sclx,-scl*3/2},{-scl*2,-scl},{-sclx*2,0},{-sclx*2,scl},{-sclx,scl*3/2}};
+	public static int[][] SOCKET_LOCATIONS = {{0,0},{0,scl},{scl_x,scl/2},{scl_x,-scl/2},{0,-scl},{-scl_x,-scl/2},{-scl_x,scl/2},{0,scl*2},{scl_x,scl*3/2},{scl_x *2,scl},{scl_x *2,0},{scl_x *2,-scl},{scl_x,-scl*3/2},{0,-scl*2},{-scl_x,-scl*3/2},{-scl*2,-scl},{-scl_x *2,0},{-scl_x *2,scl},{-scl_x,scl*3/2}};
 
 	public static final int[][] ENEMY_MODULE_DESIGNS = {
 			{0,1,-1,1,-1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
@@ -41,7 +41,7 @@ public class ProjectEvolve extends Game {
 	};
 
 
-	public static final int[][] UPGRADE_COSTS = {{0,1,2,3,4},{0,5,6,7,8},{0,9,10,11,12}};
+	public static final int[][] UPGRADE_COSTS = {{1,2,3,4,5},{5,6,7,8,9},{9,10,11,12,13}};
 
 	public static GameState state;
 
@@ -130,9 +130,7 @@ public class ProjectEvolve extends Game {
 
 	public static void setScl(int newScale) {
 		scl = newScale;
-		sclx = (int) (scl * Math.sqrt(3) / 2);
-		//sclx = 84;
-		int[][] newArray = {{0,0},{0,scl},{sclx,scl/2},{sclx,-scl/2},{0,-scl},{-sclx,-scl/2},{-sclx,scl/2},{0,scl*2},{sclx,scl*3/2},{sclx*2,scl},{sclx*2,0},{sclx*2,-scl},{sclx,-scl*3/2},{0,-scl*2},{-sclx,-scl*3/2},{-sclx*2,-scl},{-sclx*2,0},{-sclx*2,scl},{-sclx,scl*3/2}};
-		SOCKET_LOCATIONS = newArray;//{{0,0},{0,scl},{sclx,scl/2},{sclx*2,-scl/2},{0,-scl},{-2*sclx,-scl/2},{-2*sclx,scl/2},{0,scl*2},{sclx*2,scl*3/2},{sclx*4,scl},{sclx*4,0},{sclx*4,-scl},{sclx*2,-scl*3/2},{0,-scl*2},{-sclx*2,-scl*3/2},{-scl*4,-scl},{-sclx*4,0},{-sclx*4,scl},{-sclx*2,scl*3/2}};
+		scl_x = (int) (scl * Math.sqrt(3) / 2);
+		SOCKET_LOCATIONS = new int[][] {{0,0},{0,scl},{scl_x,scl/2},{scl_x,-scl/2},{0,-scl},{-scl_x,-scl/2},{-scl_x,scl/2},{0,scl*2},{scl_x,scl*3/2},{scl_x *2,scl},{scl_x *2,0},{scl_x *2,-scl},{scl_x,-scl*3/2},{0,-scl*2},{-scl_x,-scl*3/2},{-scl_x *2,-scl},{-scl_x *2,0},{-scl_x *2,scl},{-scl_x,scl*3/2}};
 	}
 }

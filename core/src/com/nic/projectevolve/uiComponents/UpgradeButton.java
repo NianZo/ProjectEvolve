@@ -22,10 +22,7 @@ import com.nic.projectevolve.ProjectEvolve;
  * to be clicked on and deactivated.
  */
 public class UpgradeButton {
-    // TODO highly experimental
-
     private Sprite icon;
-    private Texture iconTexture;
     private TextButton description;
     private Sprite backgroundSprite;
     private Vector2 position;
@@ -39,6 +36,7 @@ public class UpgradeButton {
 
     public UpgradeButton(int type, Vector2 position, Vector2 size) {
         this.type = type;
+        Texture iconTexture;
         iconTexture = new Texture(ProjectEvolve.MODULE_TEXTURE_NAMES[type]);
         icon = new Sprite(iconTexture);
         icon.setBounds(0, 0, size.y / 2 / ProjectEvolve.PPM, size.y / 2 / ProjectEvolve.PPM);
@@ -48,7 +46,7 @@ public class UpgradeButton {
         this.size = size;
 
         createTextField();
-        description = new TextButton(ProjectEvolve.UPGRADE_DESCRIPTIONS[type]+ProjectEvolve.UPGRADE_COSTS[type][GameState.moduleLevels[type]], skin);
+        description = new TextButton(ProjectEvolve.UPGRADE_DESCRIPTIONS[type]+ProjectEvolve.UPGRADE_COSTS[type][GameState.moduleLevels[type] - 1], skin);
         description.setPosition(position.x + size.y, position.y);
         description.setSize(size.x - size.y, size.y);
         stage.addActor(description);
@@ -90,9 +88,12 @@ public class UpgradeButton {
                 touchPosition.y < (position.y + size.y) / ProjectEvolve.PPM && active) {
 
             //pickedUp = true;
-            GameState.geneticMaterial -= ProjectEvolve.UPGRADE_COSTS[type][GameState.moduleLevels[type]];
-            GameState.moduleLevels[type]++;
-            ProjectEvolve.manager.get("sounds/water_sfx.ogg", Sound.class).play();
+            if(GameState.moduleLevels[type] < 5) {
+                GameState.geneticMaterial -= ProjectEvolve.UPGRADE_COSTS[type][GameState.moduleLevels[type] - 1];
+                GameState.moduleLevels[type]++;
+                ProjectEvolve.manager.get("sounds/water_sfx.ogg", Sound.class).play();
+                description.setText(ProjectEvolve.UPGRADE_DESCRIPTIONS[type]+ProjectEvolve.UPGRADE_COSTS[type][GameState.moduleLevels[type] - 1]);
+            }
         }
 
     }
@@ -109,7 +110,7 @@ public class UpgradeButton {
     public void update(Vector2 touchPosition) {
         icon.setAlpha(.75f);
         backgroundSprite.setAlpha(.5f);
-        if (touchPosition.x > position.x / ProjectEvolve.PPM &&
+        if (active && touchPosition.x > position.x / ProjectEvolve.PPM &&
                 touchPosition.x < (position.x + size.x) / ProjectEvolve.PPM &&
                 touchPosition.y > position.y / ProjectEvolve.PPM &&
                 touchPosition.y < (position.y + size.y) / ProjectEvolve.PPM) {
@@ -121,6 +122,9 @@ public class UpgradeButton {
             backgroundSprite.setAlpha(.75f);
         }
 
-        active = GameState.geneticMaterial >= ProjectEvolve.UPGRADE_COSTS[type][GameState.moduleLevels[type]];
+        if(GameState.moduleLevels[type] >= 5) {
+            description.setText("Maximum\nLevel\nReached");
+        }
+        active = (GameState.geneticMaterial >= ProjectEvolve.UPGRADE_COSTS[type][GameState.moduleLevels[type] - 1]) && (GameState.moduleLevels[type] < 5);
     }
 }

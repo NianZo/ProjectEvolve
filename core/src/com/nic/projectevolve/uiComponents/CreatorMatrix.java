@@ -16,7 +16,7 @@ import com.nic.projectevolve.shapes.Circle;
  * of the game's State class which will hold the creature blueprint.
  */
 public class CreatorMatrix {
-    private static final int[][] ADJACENTSOCKETS =
+    private static final int[][] ADJACENT_SOCKETS =
             {{1,2,3,4,5,6}
             ,{7,8,2,0,6,18}
             ,{8,9,10,3,0,1}
@@ -36,8 +36,6 @@ public class CreatorMatrix {
             ,{17,6,5,15,-1,-1}
             ,{18,6,16,-1,-1,-1}
             ,{7,1,6,17,-1,-1}};
-    private static final int[][] SOCKETLOCATIONS = {{0,-1},{0,49},{43,25},{43,-25},{1,-50},{-41,-26},{-41,24},{0,100},{42,75},{84,50},{85,0},{85,-50},{43,-75},{2,-100},{-41,-76},{-84,-50},{-83,-1},{-84,48},{-42,73}};
-    private static final float SOCKETRADIUS = 50f / 2 / ProjectEvolve.PPM;
 
     private Sprite sprite;
 
@@ -62,8 +60,7 @@ public class CreatorMatrix {
 
         // Handles creation and positioning of sockets to drop modules into
         for(int i = 0; i < numSockets; i++) {
-//            sockets[i] = new Circle(new Vector2(position.x + SOCKETLOCATIONS[i][0] / ProjectEvolve.PPM, position.y + SOCKETLOCATIONS[i][1] / ProjectEvolve.PPM), SOCKETRADIUS);
-            sockets[i] = new Circle(new Vector2(position.x + ProjectEvolve.SOCKET_LOCATIONS[i][0] / ProjectEvolve.PPM, position.y + ProjectEvolve.SOCKET_LOCATIONS[i][1] / ProjectEvolve.PPM), Gdx.graphics.getHeight() * 1 / 16 / ProjectEvolve.PPM);
+            sockets[i] = new Circle(new Vector2(position.x + ProjectEvolve.SOCKET_LOCATIONS[i][0] / ProjectEvolve.PPM, position.y + ProjectEvolve.SOCKET_LOCATIONS[i][1] / ProjectEvolve.PPM), Gdx.graphics.getHeight() / 16 / ProjectEvolve.PPM);
         }
     }
 
@@ -161,7 +158,7 @@ public class CreatorMatrix {
 
         for(int i = 0; i < 6; i++) {
             if(!adjacent) {
-                adjacent = ADJACENTSOCKETS[socket][i] == socketToTest;
+                adjacent = ADJACENT_SOCKETS[socket][i] == socketToTest;
             }
         }
         return adjacent;

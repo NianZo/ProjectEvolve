@@ -57,37 +57,37 @@ public class PhysicsMath {
         return input < limit && input > -limit;
     }
 
-    public static Vector2 zeroVectorIfAbove(Vector2 input, float limit) {
-        if(input.x > limit || input.x < -limit) {
-            input.x = 0;
-        }
-        if(input.y > limit || input.y < -limit) {
-            input.y = 0;
-        }
-        return input;
-    }
-
-    public static Vector2 zeroVectorIfUnder(Vector2 input, float limit) {
-        if(input.x < limit && input.x > -limit) {
-            input.x = 0;
-        }
-        if(input.y < limit && input.y > -limit) {
-            input.y = 0;
-        }
-        return input;
-    }
-
-    public static float zeroValueIfAbove(float input, float limit) {
-        if(input > limit || input < -limit) {
-            input = 0;
-        }
-        return input;
-    }
-
-    public static float zeroValueIfUnder(float input, float limit) {
-        if(input < limit && input > -limit) {
-            input = 0;
-        }
-        return input;
-    }
+//    public static Vector2 zeroVectorIfAbove(Vector2 input, float limit) {
+//        if(input.x > limit || input.x < -limit) {
+//            input.x = 0;
+//        }
+//        if(input.y > limit || input.y < -limit) {
+//            input.y = 0;
+//        }
+//        return input;
+//    }
+//
+//    public static Vector2 zeroVectorIfUnder(Vector2 input, float limit) {
+//        if(input.x < limit && input.x > -limit) {
+//            input.x = 0;
+//        }
+//        if(input.y < limit && input.y > -limit) {
+//            input.y = 0;
+//        }
+//        return input;
+//    }
+//
+//    public static float zeroValueIfAbove(float input, float limit) {
+//        if(input > limit || input < -limit) {
+//            input = 0;
+//        }
+//        return input;
+//    }
+//
+//    public static float zeroValueIfUnder(float input, float limit) {
+//        if(input < limit && input > -limit) {
+//            input = 0;
+//        }
+//        return input;
+//    }
 }

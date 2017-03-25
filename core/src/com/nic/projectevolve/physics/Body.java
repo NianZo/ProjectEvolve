@@ -39,7 +39,6 @@ public class Body {
         this.radiusX = radiusX;
         this.radiusY = radiusY;
 
-        // TODO initialize dynamically based on module type
         mass = .25f;
 
         offset = new Vector2();
