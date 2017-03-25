@@ -26,7 +26,7 @@ public class Hud {
     private Label energyLabel;
     private Label scoreLabel;
 
-    public Hud(SpriteBatch sb) {
+    public Hud(SpriteBatch sb, int levelNumber) {
         // Create a stage for the HUD to be contained in
         stage = new Stage(new FitViewport(ProjectEvolve.V_WIDTH, ProjectEvolve.V_HEIGHT, new OrthographicCamera()), sb);
 
@@ -43,7 +43,7 @@ public class Hud {
         energyLabel = new Label(String.format(Locale.US, "%03d", 0), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         scoreLabel = new Label(String.format(Locale.US, "%06d", GameState.geneticMaterial), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         energyTitleLabel = new Label("Energy", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
-        levelLabel = new Label("1", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
+        levelLabel = new Label(""+(levelNumber+1), new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         levelTitleLabel = new Label("LEVEL", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
         scoreTitleLabel = new Label("Nucleotides", new Label.LabelStyle(new BitmapFont(), Color.WHITE));
 

@@ -89,7 +89,7 @@ public class PlayScreen implements Screen{
         BodyList.setPPM(ProjectEvolve.PPM);
 
         // Create the HUD
-        hud = new Hud(game.batch);
+        hud = new Hud(game.batch, levelNumber);
 
         // Create the player
         for(MapObject object : map.getLayers().get(4).getObjects().getByType(RectangleMapObject.class)) {

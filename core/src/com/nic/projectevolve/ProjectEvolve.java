@@ -41,7 +41,7 @@ public class ProjectEvolve extends Game {
 	};
 
 
-	public static final int[][] UPGRADE_COSTS = {{1,2,3,4,5},{5,6,7,8,9},{9,10,11,12,13}};
+	public static final int[][] UPGRADE_COSTS = {{1,2,3,4,5},{5,10,15,20,25},{10,20,30,40,50}};
 
 	public static GameState state;
 
