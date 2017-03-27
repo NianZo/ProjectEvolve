@@ -2,13 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.nic.projectevolve"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="1.1" >
 
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="23" />
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
+        android:icon="@drawable/evolve_icon"
         android:label="@string/app_name"
         android:theme="@style/GdxTheme" >
         <activity
